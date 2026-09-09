@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -12,21 +15,220 @@ import {
   CheckCircle2,
   Layers,
   Sparkles,
+  Cpu,
+  Scissors,
+  Zap,
+  Crosshair,
+  Trophy,
+  Crown,
+  Skull,
+  Swords,
+  Users,
+  Eye,
+  MessageCircle,
+  FileCheck,
 } from "lucide-react";
 
 export default function EcosystemDashboard() {
   const BOT_HANDLE = "saipion_bot";
   const APP_URL = "https://elegant-chandrasekhar.vercel.app";
   const SHARE_TEXT = encodeURIComponent(
-    "⚡ Just accessed the Saipion Syndicate TMA Tollbooth Engine on Telegram! Try it now:"
+    "⚡ Just accessed the Saipion Syndicate TMA Tollbooth Engine on Telegram! Explore 16 live cash-flow apps:"
   );
   const SHARE_URL = `https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${SHARE_TEXT}`;
+
+  const [activeFilter, setActiveFilter] = useState<"ALL" | "INFRA" | "AMBUSH" | "WEB3" | "VIRAL">("ALL");
+
+  const apps = [
+    // Phase 1: Infrastructure
+    {
+      id: "APP-01",
+      name: "The Identity Node",
+      path: "/app-auth",
+      category: "INFRA",
+      badge: "HMAC-SHA256",
+      tollbooth: "Auth & Sync",
+      icon: ShieldCheck,
+      color: "text-cyan-400 bg-cyan-950/60 border-cyan-800",
+      desc: "Cryptographic validation of Telegram initData & stateless Supabase user sync.",
+    },
+    {
+      id: "APP-02",
+      name: "The Tollbooth Protocol",
+      path: "/star-buster",
+      category: "INFRA",
+      badge: "LIVE XTR",
+      tollbooth: "10-100 Stars",
+      icon: Star,
+      color: "text-amber-400 bg-amber-950/60 border-amber-800",
+      desc: "Live 1-click microtransactions via Apple/Google Pay with instant receipt audit.",
+    },
+    {
+      id: "APP-03",
+      name: "The Adsgram Gate",
+      path: "/ad-gate",
+      category: "INFRA",
+      badge: "HYBRID READY",
+      tollbooth: "Ad or 1-Star Bypass",
+      icon: Play,
+      color: "text-fuchsia-400 bg-fuchsia-950/60 border-fuchsia-800",
+      desc: "Rewarded video ad monetization with 1-Star microtransaction VIP skip.",
+    },
+    // Phase 2: AI Ambush
+    {
+      id: "APP-04",
+      name: "The Visual Ambush",
+      path: "/render-trap",
+      category: "AMBUSH",
+      badge: "4K GPU",
+      tollbooth: "50 Stars ($1.00)",
+      icon: Sparkles,
+      color: "text-orange-400 bg-orange-950/60 border-orange-800",
+      desc: "Fal.ai serverless GPU product photography behind high-res watermark paywall.",
+    },
+    {
+      id: "APP-05",
+      name: "The Doxx-Radar",
+      path: "/osint-radar",
+      category: "AMBUSH",
+      badge: "OSINT RADAR",
+      tollbooth: "100 Stars ($2.00)",
+      icon: Eye,
+      color: "text-rose-400 bg-rose-950/60 border-rose-800",
+      desc: "Public breach scanner unmasking exposed credentials, hash salts & IP logs.",
+    },
+    {
+      id: "APP-06",
+      name: "The Contract Slayer",
+      path: "/legal-blade",
+      category: "AMBUSH",
+      badge: "LEGAL AI",
+      tollbooth: "250 Stars ($5.00)",
+      icon: FileCheck,
+      color: "text-blue-400 bg-blue-950/60 border-blue-800",
+      desc: "Detects unilateral liability clauses and outputs protective counter-amendments.",
+    },
+    {
+      id: "APP-07",
+      name: "The VibeSync Companion",
+      path: "/parasocial-core",
+      category: "AMBUSH",
+      badge: "OPENROUTER AI",
+      tollbooth: "150 Stars ($3.00)",
+      icon: MessageCircle,
+      color: "text-pink-400 bg-pink-950/60 border-pink-800",
+      desc: "Uncensored, hyper-empathetic emotional AI companion with 10-message free quota.",
+    },
+    // Phase 3: Web3 & Scalers
+    {
+      id: "APP-08",
+      name: "The Sybil Tasker",
+      path: "/airdrop-farm",
+      category: "WEB3",
+      badge: "AUTO-PILOT",
+      tollbooth: "100 Stars ($2.00)",
+      icon: Cpu,
+      color: "text-cyan-400 bg-cyan-950/60 border-cyan-800",
+      desc: "Multi-chain airdrop qualification radar with anti-sybil randomized transaction bot.",
+    },
+    {
+      id: "APP-09",
+      name: "The Watermark Assassin",
+      path: "/content-wash",
+      category: "WEB3",
+      badge: "HASH MUTATOR",
+      tollbooth: "50 Stars / Ad",
+      icon: Scissors,
+      color: "text-emerald-400 bg-emerald-950/60 border-emerald-800",
+      desc: "TikTok/Reels watermark scrub & cryptographic byte hash mutation to kill shadowbans.",
+    },
+    {
+      id: "APP-10",
+      name: "The Zero-DTE Pool",
+      path: "/flash-casino",
+      category: "WEB3",
+      badge: "60s BINARY",
+      tollbooth: "3% House Rake",
+      icon: Zap,
+      color: "text-yellow-400 bg-yellow-950/60 border-yellow-800",
+      desc: "High-frequency 60-second BTC prediction market with automated house rake.",
+    },
+    // Category 2 & Viral Arbitrage
+    {
+      id: "APP-11",
+      name: "TrenchRadar",
+      path: "/trench-radar",
+      category: "VIRAL",
+      badge: "PUMP.FUN SCAN",
+      tollbooth: "25 Stars ($0.50)",
+      icon: Crosshair,
+      color: "text-purple-400 bg-purple-950/60 border-purple-800",
+      desc: "Live DexScreener Solana rug radar unmasking dev wallet clusters & snipers.",
+    },
+    {
+      id: "APP-12",
+      name: "Stars Ranker",
+      path: "/stars-ranker",
+      category: "VIRAL",
+      badge: "CLOUT LEADERBOARD",
+      tollbooth: "50-1000 Stars",
+      icon: Trophy,
+      color: "text-yellow-400 bg-yellow-950/60 border-yellow-800",
+      desc: "Major-style global flex leaderboard with Star boost packs and viral share links.",
+    },
+    {
+      id: "APP-13",
+      name: "The Pinned Throne",
+      path: "/king-throne",
+      category: "VIRAL",
+      badge: "AUCTION RAKE",
+      tollbooth: "10% House Cut",
+      icon: Crown,
+      color: "text-amber-400 bg-amber-950/60 border-amber-800",
+      desc: "Continuous King of the Hill auction to pin promotional broadcasts across the syndicate.",
+    },
+    {
+      id: "APP-14",
+      name: "AI Degen Roast",
+      path: "/clout-roast",
+      category: "VIRAL",
+      badge: "VIRAL ROAST",
+      tollbooth: "50 Stars ($1.00)",
+      icon: Skull,
+      color: "text-red-400 bg-red-950/60 border-red-800",
+      desc: "Brutal AI analysis of Telegram handles and bios with shareable story scorecards.",
+    },
+    {
+      id: "APP-15",
+      name: "Burn Arena PvP",
+      path: "/burn-arena",
+      category: "VIRAL",
+      badge: "COIN BATTLE",
+      tollbooth: "5% House Rake",
+      icon: Swords,
+      color: "text-emerald-400 bg-emerald-950/60 border-emerald-800",
+      desc: "Telegram group meme coin war where holders burn Stars to strike rival coins.",
+    },
+    {
+      id: "APP-16",
+      name: "Group Partner Portal",
+      path: "/affiliate-portal",
+      category: "VIRAL",
+      badge: "PARTNER REV-SHARE",
+      tollbooth: "30% Lifetime Cut",
+      icon: Users,
+      color: "text-teal-400 bg-teal-950/60 border-teal-800",
+      desc: "30% lifetime revenue sharing portal for Telegram group admins & channel owners.",
+    },
+  ];
+
+  const filteredApps = activeFilter === "ALL" ? apps : apps.filter((a) => a.category === activeFilter);
 
   return (
     <div className="flex flex-col gap-6">
       {/* Ecosystem Telemetry Command Banner */}
       <header className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-36 h-36 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -38,7 +240,7 @@ export default function EcosystemDashboard() {
           <div className="flex items-center gap-1.5 bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
             <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
-              100% ONLINE
+              16/16 ONLINE
             </span>
           </div>
         </div>
@@ -90,167 +292,80 @@ export default function EcosystemDashboard() {
         </div>
       </header>
 
-      {/* PHASE 1: THE PLUMBING (100% OPERATIONAL) */}
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Activity className="w-3.5 h-3.5 text-emerald-400" />
-            <h2 className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-              Phase 1: The Plumbing (Operational)
-            </h2>
-          </div>
-          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">
-            3/3 READY
-          </span>
-        </div>
+      {/* Category Filter Chips */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none font-mono text-xs">
+        {[
+          { key: "ALL", label: "All 16 Plays" },
+          { key: "INFRA", label: "Infrastructure (3)" },
+          { key: "AMBUSH", label: "AI Ambush (4)" },
+          { key: "WEB3", label: "Web3 Scalers (3)" },
+          { key: "VIRAL", label: "Viral Arbitrage (6)" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveFilter(tab.key as any)}
+            className={`whitespace-nowrap px-3 py-1.5 rounded-lg border transition-all ${
+              activeFilter === tab.key
+                ? "bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold"
+                : "bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        {/* App 1 Card */}
-        <Link
-          href="/app-auth"
-          className="group block p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 transition-all shadow-lg hover:shadow-cyan-500/5"
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-cyan-950/50 border border-cyan-800/60 text-cyan-400 group-hover:scale-105 transition-transform">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-white">App 1: The Identity Node</h3>
-                  <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950 border border-emerald-800 px-1.5 rounded">
-                    VERIFIED
+      {/* App Grid */}
+      <div className="flex flex-col gap-3">
+        {filteredApps.map((app) => {
+          const Icon = app.icon;
+          return (
+            <Link
+              key={app.id}
+              href={app.path}
+              className="group block p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-lg hover:shadow-cyan-500/5"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2.5 rounded-lg border ${app.color} group-hover:scale-105 transition-transform`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-white">{app.name}</h3>
+                      <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950 border border-emerald-800 px-1.5 rounded">
+                        {app.badge}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5 font-mono text-xs">
+                      <span className="text-slate-500 text-[10px]">{app.id}</span>
+                      <span className="text-slate-400 text-[10px]">{app.path}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end">
+                  <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all" />
+                  <span className="text-[10px] font-mono text-amber-400 font-bold mt-2">
+                    {app.tollbooth}
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5 font-mono">/app-auth</p>
               </div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all mt-1" />
-          </div>
-          <p className="text-xs text-slate-300 mt-3 leading-relaxed">
-            Cryptographic HMAC-SHA256 health check on Telegram <code className="text-cyan-300">initData</code> & stateless Supabase user sync.
-          </p>
-        </Link>
-
-        {/* App 2 Card */}
-        <Link
-          href="/star-buster"
-          className="group block p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all shadow-lg hover:shadow-amber-500/5"
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-amber-950/50 border border-amber-800/60 text-amber-400 group-hover:scale-105 transition-transform">
-                <Star className="w-5 h-5 fill-amber-400/20" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-white">App 2: The Tollbooth Protocol</h3>
-                  <span className="text-[9px] font-mono text-amber-400 bg-amber-950 border border-amber-800 px-1.5 rounded">
-                    LIVE XTR
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400 mt-0.5 font-mono">/star-buster</p>
-              </div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-0.5 transition-all mt-1" />
-          </div>
-          <p className="text-xs text-slate-300 mt-3 leading-relaxed">
-            Telegram Stars (XTR) 1-click checkout testing live Virtual Coffee microtransactions and receipt logging.
-          </p>
-        </Link>
-
-        {/* App 3 Card */}
-        <Link
-          href="/ad-gate"
-          className="group block p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-fuchsia-500/50 transition-all shadow-lg hover:shadow-fuchsia-500/5"
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-fuchsia-950/50 border border-fuchsia-800/60 text-fuchsia-400 group-hover:scale-105 transition-transform">
-                <Play className="w-5 h-5 fill-fuchsia-400/20" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-white">App 3: The Adsgram Gate</h3>
-                  <span className="text-[9px] font-mono text-fuchsia-400 bg-fuchsia-950 border border-fuchsia-800 px-1.5 rounded">
-                    HYBRID READY
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400 mt-0.5 font-mono">/ad-gate</p>
-              </div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-fuchsia-400 group-hover:translate-x-0.5 transition-all mt-1" />
-          </div>
-          <p className="text-xs text-slate-300 mt-3 leading-relaxed">
-            Alternative monetization validation: rewarded video ad gate with 1-Star instant VIP bypass.
-          </p>
-        </Link>
-      </section>
-
-      {/* PHASE 2: THE AMBUSH MODULES (NEXT SPRINT) */}
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Flame className="w-3.5 h-3.5 text-orange-400" />
-            <h2 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
-              Phase 2: The Ambush Modules
-            </h2>
-          </div>
-          <span className="text-[10px] font-mono text-orange-400 bg-orange-950/60 border border-orange-800/60 px-2 py-0.5 rounded-full">
-            NEXT TARGET
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-          <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col gap-1">
-            <span className="text-orange-400 font-bold">/render-trap</span>
-            <span className="text-[11px] text-slate-400">Fal.ai 4K Studio Renders</span>
-            <span className="text-[10px] text-slate-500">50 Stars ($1) Unlock</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col gap-1">
-            <span className="text-orange-400 font-bold">/osint-radar</span>
-            <span className="text-[11px] text-slate-400">Breach Password Scans</span>
-            <span className="text-[10px] text-slate-500">100 Stars ($2) Unlock</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col gap-1">
-            <span className="text-slate-400 font-bold">/legal-blade</span>
-            <span className="text-[11px] text-slate-400">Contract Trap Slayer</span>
-            <span className="text-[10px] text-slate-500">$5 Stars Counter-Offer</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col gap-1">
-            <span className="text-slate-400 font-bold">/parasocial-core</span>
-            <span className="text-[11px] text-slate-400">Uncensored AI Roleplay</span>
-            <span className="text-[10px] text-slate-500">$29/mo Sub Gate</span>
-          </div>
-        </div>
-      </section>
-
-      {/* PHASE 3: LEVIATHAN SCALERS */}
-      <section className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <Layers className="w-3.5 h-3.5 text-purple-400" />
-          <h2 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
-            Phase 3: The Leviathan Scalers (Web3)
-          </h2>
-        </div>
-        <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs font-mono text-slate-400 flex justify-between items-center">
-          <span>/airdrop-farm // /content-wash // /flash-casino</span>
-          <span className="text-[10px] text-purple-400 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-800">
-            QUEUED
-          </span>
-        </div>
-      </section>
+              <p className="text-xs text-slate-300 mt-2.5 leading-relaxed font-sans">
+                {app.desc}
+              </p>
+            </Link>
+          );
+        })}
+      </div>
 
       {/* Strategic Anti-Failure Protocol */}
       <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400 flex flex-col gap-2">
         <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider flex items-center gap-1.5 font-bold">
           <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          Syndicate Competitive Edge
+          Syndicate Operational Advantage
         </span>
-        <p className="text-[11px] text-slate-400 leading-relaxed">
-          While typical Web3/TMA teams spend months on roadmaps and fail from lack of revenue, the Saipion Syndicate enforces the <strong>48-Hour Velocity &amp; 24-Hour Guillotine</strong>: instantaneous monetization tollbooths deployed across a unified Omni-Hook edge router.
+        <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+          All 16 apps are wired to the unified Omni-Hook Telegram router (<code className="text-cyan-300">/api/telegram-handler</code>), authenticated via cryptographic HMAC-SHA256, and monetized via Telegram Stars (XTR) 1-click microtransactions, Adsgram rewarded video ads, and 30% group affiliate rev-share.
         </p>
       </div>
     </div>

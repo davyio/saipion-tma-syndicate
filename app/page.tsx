@@ -33,6 +33,7 @@ import {
   Moon,
   Package,
   Kanban,
+  Trello,
 } from "lucide-react";
 import { sensory } from "@/lib/sensory";
 
@@ -40,19 +41,32 @@ export default function EcosystemDashboard() {
   const BOT_HANDLE = "saipion_bot";
   const APP_URL = "https://elegant-chandrasekhar.vercel.app";
   const SHARE_TEXT = encodeURIComponent(
-    "⚡ Just accessed the Saipion Syndicate TMA Tollbooth Engine on Telegram! Explore 22 live cash-flow apps:"
+    "⚡ Just accessed the Saipion Syndicate TMA Tollbooth Engine on Telegram! Explore 23 live cash-flow apps:"
   );
   const SHARE_URL = `https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${SHARE_TEXT}`;
 
-  const [activeFilter, setActiveFilter] = useState<"ALL" | "LAUNCH" | "APPLE" | "INFRA" | "AMBUSH" | "WEB3" | "VIRAL">("ALL");
+  const [activeFilter, setActiveFilter] = useState<"ALL" | "TRELLO" | "APPLE" | "INFRA" | "AMBUSH" | "WEB3" | "VIRAL">("ALL");
 
   const apps = [
+    // Flagship: ATLAS OS (Apple Ceramic White Trello TMA)
+    {
+      id: "APP-23",
+      name: "ATLAS OS (Trello TMA)",
+      path: "/atlas-board",
+      category: "TRELLO",
+      badge: "CERAMIC WHITE",
+      tollbooth: "Star Bounties & Collab",
+      icon: Trello,
+      color: "text-neutral-900 bg-white border-neutral-300 shadow-sm",
+      desc: "Production-ready Apple ceramic silver Trello platform with 1-tap Telegram invites, role permissions, checklists, and Star bounties.",
+    },
+
     // Mission Control Command Board
     {
       id: "APP-22",
       name: "Launchpad Mission Control",
       path: "/launch-board",
-      category: "LAUNCH",
+      category: "TRELLO",
       badge: "TOKEN LAUNCH OS",
       tollbooth: "Campaign Engine",
       icon: Kanban,
@@ -320,7 +334,7 @@ export default function EcosystemDashboard() {
           <div className="flex items-center gap-1.5 bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
             <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
-              22/22 ONLINE
+              23/23 ONLINE
             </span>
           </div>
         </div>
@@ -330,7 +344,7 @@ export default function EcosystemDashboard() {
             The Saipion Syndicate
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            22-App Telegram Cash-Flow &amp; Token Launchpad Ecosystem
+            23-App Telegram Mini App Cash-Flow &amp; Asymmetric Work OS
           </p>
         </div>
 
@@ -351,7 +365,7 @@ export default function EcosystemDashboard() {
           <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 flex flex-col">
             <span className="text-[9px] text-slate-500 uppercase">Stars Tollbooth</span>
             <span className="text-amber-400 font-bold mt-0.5 flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 fill-amber-400" /> XTR Live Active
+              <Star className="w-3 h-3 fill-amber-400" /> XTR Live Active
             </span>
           </div>
         </div>
@@ -375,8 +389,8 @@ export default function EcosystemDashboard() {
       {/* Category Filter Chips */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none font-mono text-xs">
         {[
-          { key: "ALL", label: "All 22 Plays" },
-          { key: "LAUNCH", label: "Launch OS (1)" },
+          { key: "ALL", label: "All 23 Plays" },
+          { key: "TRELLO", label: "Trello TMA (2)" },
           { key: "APPLE", label: "Apple Minimal (5)" },
           { key: "INFRA", label: "Infrastructure (3)" },
           { key: "AMBUSH", label: "AI Ambush (4)" },
@@ -451,7 +465,7 @@ export default function EcosystemDashboard() {
           Syndicate Operational Advantage
         </span>
         <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-          All 22 apps are wired to the unified Omni-Hook Telegram router (<code className="text-cyan-300">/api/telegram-handler</code>), authenticated via cryptographic HMAC-SHA256, and monetized via Telegram Stars (XTR) 1-click checkout, Adsgram rewarded video ads, and 30% group affiliate rev-share.
+          All 23 apps are wired to the unified Omni-Hook Telegram router (<code className="text-cyan-300">/api/telegram-handler</code>), authenticated via cryptographic HMAC-SHA256, and monetized via Telegram Stars (XTR) 1-click checkout, Adsgram rewarded video ads, and 30% group affiliate rev-share.
         </p>
       </div>
     </div>

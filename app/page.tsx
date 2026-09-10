@@ -27,19 +27,82 @@ import {
   Eye,
   MessageCircle,
   FileCheck,
+  Lock,
+  FileText,
+  Sliders,
+  Moon,
+  Package,
 } from "lucide-react";
+import { sensory } from "@/lib/sensory";
 
 export default function EcosystemDashboard() {
   const BOT_HANDLE = "saipion_bot";
   const APP_URL = "https://elegant-chandrasekhar.vercel.app";
   const SHARE_TEXT = encodeURIComponent(
-    "⚡ Just accessed the Saipion Syndicate TMA Tollbooth Engine on Telegram! Explore 16 live cash-flow apps:"
+    "⚡ Just accessed the Saipion Syndicate TMA Tollbooth Engine on Telegram! Explore 21 live cash-flow apps:"
   );
   const SHARE_URL = `https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${SHARE_TEXT}`;
 
-  const [activeFilter, setActiveFilter] = useState<"ALL" | "INFRA" | "AMBUSH" | "WEB3" | "VIRAL">("ALL");
+  const [activeFilter, setActiveFilter] = useState<"ALL" | "APPLE" | "INFRA" | "AMBUSH" | "WEB3" | "VIRAL">("ALL");
 
   const apps = [
+    // Apple Minimalist Ventures (Jony Ive / Steve Jobs Ethos)
+    {
+      id: "APP-17",
+      name: "AURA Life Capsule",
+      path: "/aura-vault",
+      category: "APPLE",
+      badge: "ZERO-KNOWLEDGE",
+      tollbooth: "1,200 Stars ($24)",
+      icon: Lock,
+      color: "text-neutral-100 bg-neutral-950 border-neutral-700",
+      desc: "Executive life capsule for emergency seed phrases, dead-man succession, and corporate mandates.",
+    },
+    {
+      id: "APP-18",
+      name: "CHRONOS Board",
+      path: "/chronos-board",
+      category: "APPLE",
+      badge: "ASYNCHRONOUS GOV",
+      tollbooth: "250 Stars ($5.00)",
+      icon: FileText,
+      color: "text-neutral-100 bg-neutral-950 border-neutral-700",
+      desc: "Quiet editorial decision room for syndicates and boards. Binding signed resolutions in seconds.",
+    },
+    {
+      id: "APP-19",
+      name: "MONOLITH Escrow",
+      path: "/monolith-desk",
+      category: "APPLE",
+      badge: "DARK POOL DESK",
+      tollbooth: "500 Stars / 15 bps",
+      icon: Sliders,
+      color: "text-neutral-100 bg-neutral-950 border-neutral-700",
+      desc: "Institutional dark pool cross-border settlement desk with tactile slide-to-settle escrow.",
+    },
+    {
+      id: "APP-20",
+      name: "SILENCE Sanctuary",
+      path: "/silence-focus",
+      category: "APPLE",
+      badge: "40HZ GAMMA FLOW",
+      tollbooth: "100 Stars Stake",
+      icon: Moon,
+      color: "text-neutral-100 bg-neutral-950 border-neutral-700",
+      desc: "Cognitive sanctuary with synthesized binaural soundscapes and peer-synchronized focus stakes.",
+    },
+    {
+      id: "APP-21",
+      name: "ATELIER Artifacts",
+      path: "/atelier-drops",
+      category: "APPLE",
+      badge: "PHYSICAL DROPS",
+      tollbooth: "250 Stars VIP",
+      icon: Package,
+      color: "text-neutral-100 bg-neutral-950 border-neutral-700",
+      desc: "Curated micro-lot luxury physical objects paired with cryptographic digital twins on TON.",
+    },
+
     // Phase 1: Infrastructure
     {
       id: "APP-01",
@@ -74,6 +137,7 @@ export default function EcosystemDashboard() {
       color: "text-fuchsia-400 bg-fuchsia-950/60 border-fuchsia-800",
       desc: "Rewarded video ad monetization with 1-Star microtransaction VIP skip.",
     },
+
     // Phase 2: AI Ambush
     {
       id: "APP-04",
@@ -119,6 +183,7 @@ export default function EcosystemDashboard() {
       color: "text-pink-400 bg-pink-950/60 border-pink-800",
       desc: "Uncensored, hyper-empathetic emotional AI companion with 10-message free quota.",
     },
+
     // Phase 3: Web3 & Scalers
     {
       id: "APP-08",
@@ -153,7 +218,8 @@ export default function EcosystemDashboard() {
       color: "text-yellow-400 bg-yellow-950/60 border-yellow-800",
       desc: "High-frequency 60-second BTC prediction market with automated house rake.",
     },
-    // Category 2 & Viral Arbitrage
+
+    // Category 2: Viral Arbitrage
     {
       id: "APP-11",
       name: "TrenchRadar",
@@ -240,7 +306,7 @@ export default function EcosystemDashboard() {
           <div className="flex items-center gap-1.5 bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
             <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
-              16/16 ONLINE
+              21/21 ONLINE
             </span>
           </div>
         </div>
@@ -250,7 +316,7 @@ export default function EcosystemDashboard() {
             The Saipion Syndicate
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            48-Hour Velocity TMA Cash-Flow Tollbooth Engine
+            21-App Telegram Cash-Flow & Minimalist Venture Portfolio
           </p>
         </div>
 
@@ -287,7 +353,7 @@ export default function EcosystemDashboard() {
             rel="noreferrer"
             className="flex items-center gap-1.5 text-xs font-mono text-cyan-400 hover:text-cyan-300 font-semibold bg-cyan-950/50 border border-cyan-800/60 px-2.5 py-1 rounded-lg transition-colors"
           >
-            <Share2 className="w-3 h-3" /> Share to Telegram Chat
+            <Share2 className="w-3 h-3" /> Share Matrix to Telegram
           </a>
         </div>
       </header>
@@ -295,7 +361,8 @@ export default function EcosystemDashboard() {
       {/* Category Filter Chips */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none font-mono text-xs">
         {[
-          { key: "ALL", label: "All 16 Plays" },
+          { key: "ALL", label: "All 21 Plays" },
+          { key: "APPLE", label: "Apple Minimal (5)" },
           { key: "INFRA", label: "Infrastructure (3)" },
           { key: "AMBUSH", label: "AI Ambush (4)" },
           { key: "WEB3", label: "Web3 Scalers (3)" },
@@ -303,10 +370,13 @@ export default function EcosystemDashboard() {
         ].map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setActiveFilter(tab.key as any)}
+            onClick={() => {
+              setActiveFilter(tab.key as any);
+              sensory.tick();
+            }}
             className={`whitespace-nowrap px-3 py-1.5 rounded-lg border transition-all ${
               activeFilter === tab.key
-                ? "bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold"
+                ? "bg-white text-black font-bold border-white"
                 : "bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700"
             }`}
           >
@@ -323,6 +393,7 @@ export default function EcosystemDashboard() {
             <Link
               key={app.id}
               href={app.path}
+              onClick={() => sensory.tick()}
               className="group block p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-lg hover:shadow-cyan-500/5"
             >
               <div className="flex items-start justify-between">
@@ -358,14 +429,14 @@ export default function EcosystemDashboard() {
         })}
       </div>
 
-      {/* Strategic Anti-Failure Protocol */}
+      {/* Strategic Operational Advantage */}
       <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400 flex flex-col gap-2">
         <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider flex items-center gap-1.5 font-bold">
           <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
           Syndicate Operational Advantage
         </span>
         <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-          All 16 apps are wired to the unified Omni-Hook Telegram router (<code className="text-cyan-300">/api/telegram-handler</code>), authenticated via cryptographic HMAC-SHA256, and monetized via Telegram Stars (XTR) 1-click microtransactions, Adsgram rewarded video ads, and 30% group affiliate rev-share.
+          All 21 apps are wired to the unified Omni-Hook Telegram router (<code className="text-cyan-300">/api/telegram-handler</code>), authenticated via cryptographic HMAC-SHA256, and monetized via Telegram Stars (XTR) 1-click checkout, Adsgram rewarded video ads, and 30% group affiliate rev-share.
         </p>
       </div>
     </div>

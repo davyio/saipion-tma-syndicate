@@ -98,6 +98,36 @@ export class TelegramBotClient {
   }): Promise<any> {
     return this.callApi("sendMessage", params);
   }
+
+  /**
+   * Get chat or user profile info including bio and photo
+   */
+  async getChat(chatId: number | string): Promise<any> {
+    try {
+      return await this.callApi("getChat", { chat_id: chatId });
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Fetches user profile photos from Telegram
+   */
+  async getUserProfilePhotoUrl(userId: number): Promise<string | null> {
+    try {
+      const photos = await this.callApi("getUserProfilePhotos", { user_id: userId, limit: 1 });
+      if (photos && photos.total_count > 0 && photos.photos?.[0]?.[0]) {
+        const fileId = photos.photos[0][photos.photos[0].length - 1].file_id;
+        const fileInfo = await this.callApi("getFile", { file_id: fileId });
+        if (fileInfo?.file_path) {
+          return `https://api.telegram.org/file/bot${this.token}/${fileInfo.file_path}`;
+        }
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
 }
 
 export const telegramBot = new TelegramBotClient();

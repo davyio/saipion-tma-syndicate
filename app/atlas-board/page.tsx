@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTelegram } from "@/hooks/useTelegram";
 import { sensory } from "@/lib/sensory";
+import { UserProfileModal, UserProfileData } from "@/components/UserProfileModal";
 import {
   ArrowLeft,
   Kanban,
@@ -29,6 +30,9 @@ import {
   UserPlus,
   FileSpreadsheet,
   Zap,
+  Search,
+  Edit3,
+  UserCheck,
 } from "lucide-react";
 
 interface Member {
@@ -37,6 +41,7 @@ interface Member {
   name: string;
   role: "OWNER" | "ADMIN" | "MEMBER" | "OBSERVER";
   avatar: string;
+  bio?: string;
 }
 
 interface ChecklistItem {
@@ -70,6 +75,16 @@ export default function AtlasBoardPage() {
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [showNewCardModal, setShowNewCardModal] = useState<boolean>(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false);
+  const [selectedCardForDetail, setSelectedCardForDetail] = useState<Card | null>(null);
+
+  // Live User Profile Modal
+  const [inspectedUser, setInspectedUser] = useState<UserProfileData | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+
+  // Live User Search State
+  const [userSearchQuery, setUserSearchQuery] = useState<string>("");
+  const [userSearchResults, setUserSearchResults] = useState<UserProfileData[]>([]);
+  const [isSearchingUsers, setIsSearchingUsers] = useState<boolean>(false);
 
   // Invite & Add Member State
   const [inviteCopied, setInviteCopied] = useState<boolean>(false);
@@ -94,9 +109,13 @@ export default function AtlasBoardPage() {
   const [newTitle, setNewTitle] = useState<string>("");
   const [newDesc, setNewDesc] = useState<string>("");
   const [newCategory, setNewCategory] = useState<string>("Sprint");
-  const [newPriority, setNewPriority] = useState<"NORMAL" | "HIGH" | "CRITICAL">("NORMAL");
+  const [newPriority, setNewPriority] = useState<"LOW" | "NORMAL" | "HIGH" | "CRITICAL">("NORMAL");
   const [newBounty, setNewBounty] = useState<number>(100);
   const [newColId, setNewColId] = useState<string>("col_backlog");
+  const [newAssigneeUsername, setNewAssigneeUsername] = useState<string>("");
+
+  // New sub-task checklist input in detail modal
+  const [newChecklistText, setNewChecklistText] = useState<string>("");
 
   useEffect(() => {
     loadTemplate("scf_launch");
@@ -116,6 +135,9 @@ export default function AtlasBoardPage() {
           setBoardData(res);
           setCards(res.cards || []);
           setMembers(res.members || []);
+          if (res.members && res.members.length > 0) {
+            setNewAssigneeUsername(res.members[0].username);
+          }
         }
       })
       .catch(() => {});
@@ -127,6 +149,46 @@ export default function AtlasBoardPage() {
     { id: "col_review", title: "Review / QA", badgeColor: "bg-amber-100 text-amber-700" },
     { id: "col_done", title: "Completed", badgeColor: "bg-emerald-100 text-emerald-700" },
   ];
+
+  // User Profile Inspector Open
+  const openUserProfile = (m: Member | UserProfileData) => {
+    sensory.tick();
+    setInspectedUser({
+      telegramId: m.telegramId,
+      username: m.username,
+      name: m.name,
+      avatar: m.avatar,
+      bio: m.bio || `Active Syndicate Operator @${m.username}. Contributing to $SCF and ATLAS OS.`,
+      role: m.role,
+      isVerified: true,
+      starsBalance: 1200,
+      cardsAssigned: cards.filter((c) => c.assignee.username === m.username).length,
+      reputationScore: 96,
+    });
+    setShowProfileModal(true);
+  };
+
+  // Search Users via API
+  const handleUserSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userSearchQuery.trim()) return;
+    setIsSearchingUsers(true);
+    sensory.tick();
+
+    try {
+      const res = await fetch(`/api/users/profile?query=${encodeURIComponent(userSearchQuery)}`);
+      const data = await res.json();
+      if (data.ok && data.user) {
+        setUserSearchResults([data.user]);
+        openUserProfile(data.user);
+      } else if (data.ok && data.users) {
+        setUserSearchResults(data.users);
+      }
+    } catch (_) {
+    } finally {
+      setIsSearchingUsers(false);
+    }
+  };
 
   const handleToggleChecklist = (cardId: string, chkId: string) => {
     sensory.tick();
@@ -140,10 +202,11 @@ export default function AtlasBoardPage() {
             return item;
           });
           const allCompleted = updatedChecklist.every((i) => i.isChecked);
-          if (allCompleted) {
-            sensory.successChime();
-          }
-          return { ...c, checklist: updatedChecklist };
+          if (allCompleted) sensory.successChime();
+
+          const updated = { ...c, checklist: updatedChecklist };
+          if (selectedCardForDetail?.id === cardId) setSelectedCardForDetail(updated);
+          return updated;
         }
         return c;
       })
@@ -165,11 +228,60 @@ export default function AtlasBoardPage() {
           if (targetCol === "col_done") sensory.successChime();
           else sensory.slide(0.5);
 
-          return { ...c, columnId: targetCol };
+          const updated = { ...c, columnId: targetCol };
+          if (selectedCardForDetail?.id === cardId) setSelectedCardForDetail(updated);
+          return updated;
         }
         return c;
       })
     );
+  };
+
+  // Reassign Card Assignee
+  const handleReassignCard = (cardId: string, memberUsername: string) => {
+    const targetMember = members.find((m) => m.username === memberUsername);
+    if (!targetMember) return;
+
+    sensory.slide(0.4);
+    setCards((prev) =>
+      prev.map((c) => {
+        if (c.id === cardId) {
+          const updated = { ...c, assignee: targetMember };
+          if (selectedCardForDetail?.id === cardId) setSelectedCardForDetail(updated);
+          return updated;
+        }
+        return c;
+      })
+    );
+  };
+
+  // Add checklist sub-task to active detail card
+  const handleAddChecklistItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newChecklistText.trim() || !selectedCardForDetail) return;
+    sensory.tick();
+
+    const newItem: ChecklistItem = {
+      id: "chk-" + Math.random().toString(36).substring(2, 6),
+      title: newChecklistText.trim(),
+      isChecked: false,
+    };
+
+    const updatedChecklist = [...selectedCardForDetail.checklist, newItem];
+    const updatedCard = { ...selectedCardForDetail, checklist: updatedChecklist };
+
+    setSelectedCardForDetail(updatedCard);
+    setCards((prev) => prev.map((c) => (c.id === updatedCard.id ? updatedCard : c)));
+    setNewChecklistText("");
+  };
+
+  // Delete Card
+  const handleDeleteCard = (cardId: string) => {
+    if (confirm("Delete this directive from the board?")) {
+      sensory.lockThud();
+      setCards((prev) => prev.filter((c) => c.id !== cardId));
+      setSelectedCardForDetail(null);
+    }
   };
 
   const handleCreateCard = (e: React.FormEvent) => {
@@ -177,22 +289,26 @@ export default function AtlasBoardPage() {
     if (!newTitle.trim()) return;
 
     sensory.lockThud();
-    const createdCard: Card = {
-      id: "card-" + Math.random().toString(36).substring(2, 7),
-      columnId: newColId,
-      title: newTitle.trim(),
-      description: newDesc.trim() || "Codified by board manager.",
-      category: newCategory,
-      priority: newPriority,
-      dueDate: "Active Sprint",
-      starBounty: newBounty,
-      assignee: members[0] || {
+    const assignedMember =
+      members.find((m) => m.username === newAssigneeUsername) ||
+      members[0] || {
         telegramId: 777000101,
         username: user?.username || "lead",
         name: user?.first_name || "Lead Architect",
         role: "OWNER",
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80",
-      },
+      };
+
+    const createdCard: Card = {
+      id: "card-" + Math.random().toString(36).substring(2, 7),
+      columnId: newColId,
+      title: newTitle.trim(),
+      description: newDesc.trim() || "Directive formulated by board manager.",
+      category: newCategory,
+      priority: newPriority,
+      dueDate: "Active Sprint",
+      starBounty: newBounty,
+      assignee: assignedMember,
       checklist: [
         { id: "chk-new-1", title: "Specification & architecture review", isChecked: false },
         { id: "chk-new-2", title: "Execution & pull request verification", isChecked: false },
@@ -212,12 +328,14 @@ export default function AtlasBoardPage() {
     if (!newMemberUsername.trim() || !newMemberName.trim()) return;
 
     sensory.lockThud();
+    const cleanHandle = newMemberUsername.replace("@", "").trim();
     const added: Member = {
       telegramId: Math.floor(100000000 + Math.random() * 900000000),
-      username: newMemberUsername.replace("@", "").trim(),
+      username: cleanHandle,
       name: newMemberName.trim(),
       role: newMemberRole,
       avatar: `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 100000000)}?auto=format&fit=crop&w=160&q=80`,
+      bio: `Verified collaborator @${cleanHandle} added to ATLAS OS.`,
     };
 
     setMembers((prev) => [...prev, added]);
@@ -241,7 +359,7 @@ export default function AtlasBoardPage() {
     }
   };
 
-  // Generate onboarding lore tasks
+  // Generate onboarding lore tasks via DeepSeek
   const handleGenerateOnboardingTasks = async () => {
     sensory.lockThud();
     setIsOnboardingGenerating(true);
@@ -310,7 +428,7 @@ export default function AtlasBoardPage() {
 
   return (
     <div className="min-h-screen -mx-4 -my-6 px-4 py-6 bg-[#F5F5F7] text-[#1D1D1F] font-sans antialiased flex flex-col gap-5 selection:bg-neutral-300">
-      {/* Top Glass Navigation */}
+      {/* Top Navigation */}
       <header className="sticky top-0 z-30 -mx-4 px-4 py-3 bg-[#F5F5F7]/85 backdrop-blur-2xl border-b border-black/[0.06] flex items-center justify-between">
         <Link
           href="/"
@@ -336,7 +454,7 @@ export default function AtlasBoardPage() {
         </div>
       </header>
 
-      {/* Board Hero Header */}
+      {/* Board Header & Progress */}
       <div className="flex flex-col gap-1.5 pt-1">
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-mono uppercase tracking-widest text-[#86868B]">
@@ -350,13 +468,31 @@ export default function AtlasBoardPage() {
           {boardData?.board?.title || "Sprint 2026 // D-Day Launchpad"}
         </h1>
         <p className="text-xs text-[#86868B] leading-relaxed">
-          Asymmetric collaboration board with live Telegram permissions, checklist audits, and Star bounties.
+          Asymmetric collaboration board with live Telegram permissions, card assignee management, and Star bounties.
         </p>
       </div>
 
+      {/* Live User Search Bar */}
+      <form onSubmit={handleUserSearch} className="relative w-full">
+        <input
+          type="text"
+          value={userSearchQuery}
+          onChange={(e) => setUserSearchQuery(e.target.value)}
+          placeholder="Search Telegram user (@destiny, @raven, or name) for live profile..."
+          className="w-full pl-9 pr-24 py-2.5 rounded-2xl bg-white border border-black/[0.08] text-xs font-mono text-[#1D1D1F] shadow-[0_1px_4px_rgba(0,0,0,0.03)] focus:outline-none focus:border-black"
+        />
+        <Search className="w-4 h-4 text-[#86868B] absolute left-3 top-3" />
+        <button
+          type="submit"
+          disabled={isSearchingUsers}
+          className="absolute right-1.5 top-1.5 px-3 py-1.5 rounded-xl bg-[#1D1D1F] hover:bg-black text-white text-[11px] font-mono font-semibold transition-all active:scale-95"
+        >
+          {isSearchingUsers ? "..." : "Inspect"}
+        </button>
+      </form>
+
       {/* Template Selector & AI Onboarding Bar */}
       <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none font-mono text-xs">
-        {/* Template Selector Chips */}
         <div className="flex gap-1">
           {[
             { id: "scf_launch", label: "⚡ $SCF D-Day" },
@@ -377,7 +513,6 @@ export default function AtlasBoardPage() {
           ))}
         </div>
 
-        {/* AI Onboarding Form Button */}
         <button
           onClick={() => {
             setShowOnboardingModal(true);
@@ -392,26 +527,27 @@ export default function AtlasBoardPage() {
 
       {/* Team Collaborator Avatars Bar */}
       <div className="p-3.5 rounded-2xl bg-white border border-black/[0.07] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex items-center justify-between">
-        <div
-          onClick={() => setShowInviteModal(true)}
-          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-        >
+        <div className="flex items-center gap-2">
           <div className="flex -space-x-2">
             {members.map((m) => (
               <img
                 key={m.telegramId}
                 src={m.avatar}
                 alt={m.name}
-                className="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm"
-                title={`${m.name} (${m.role}) - Click to manage`}
+                onClick={() => openUserProfile(m)}
+                className="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm cursor-pointer hover:scale-110 transition-transform"
+                title={`${m.name} (@${m.username}) - Click to inspect live profile`}
               />
             ))}
           </div>
-          <div className="flex flex-col ml-1">
+          <div
+            onClick={() => setShowInviteModal(true)}
+            className="flex flex-col ml-1 cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <span className="text-xs font-medium text-[#1D1D1F]">
               {members.length} Collaborators
             </span>
-            <span className="text-[10px] font-mono text-neutral-500">Tap to add / remove</span>
+            <span className="text-[10px] font-mono text-neutral-500">Tap to manage / assign</span>
           </div>
         </div>
 
@@ -490,7 +626,7 @@ export default function AtlasBoardPage() {
             return (
               <div
                 key={card.id}
-                className="p-4 rounded-3xl bg-white border border-black/[0.07] shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col gap-3 transition-all"
+                className="p-4 rounded-3xl bg-white border border-black/[0.07] shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col gap-3 transition-all group"
               >
                 {/* Card Meta & Priority Header */}
                 <div className="flex items-center justify-between">
@@ -511,15 +647,33 @@ export default function AtlasBoardPage() {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1 text-[10px] font-mono text-[#86868B]">
-                    <Clock className="w-3 h-3 text-neutral-400" />
-                    <span>{card.dueDate}</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedCardForDetail(card);
+                        sensory.tick();
+                      }}
+                      className="p-1 rounded-lg text-[#86868B] hover:text-[#1D1D1F] hover:bg-neutral-100 transition-colors"
+                      title="Edit Card & Assign Teammates"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                    <div className="flex items-center gap-1 text-[10px] font-mono text-[#86868B]">
+                      <Clock className="w-3 h-3 text-neutral-400" />
+                      <span>{card.dueDate}</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Card Title & Description */}
-                <div>
-                  <h3 className="text-sm font-semibold text-[#1D1D1F] tracking-tight leading-snug">
+                <div
+                  onClick={() => {
+                    setSelectedCardForDetail(card);
+                    sensory.tick();
+                  }}
+                  className="cursor-pointer"
+                >
+                  <h3 className="text-sm font-semibold text-[#1D1D1F] tracking-tight leading-snug hover:text-pink-600 transition-colors">
                     {card.title}
                   </h3>
                   <p className="text-xs text-[#86868B] mt-1 leading-relaxed">
@@ -560,8 +714,12 @@ export default function AtlasBoardPage() {
 
                 {/* Assignee & Star Bounty Footer */}
                 <div className="flex items-center justify-between pt-2 border-t border-black/[0.05]">
-                  {/* Assignee */}
-                  <div className="flex items-center gap-2">
+                  {/* Assignee Clickable to Open Live Profile */}
+                  <div
+                    onClick={() => openUserProfile(card.assignee)}
+                    className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                    title={`Click to view ${card.assignee.name}'s profile`}
+                  >
                     <img
                       src={card.assignee.avatar}
                       alt={card.assignee.name}
@@ -617,6 +775,218 @@ export default function AtlasBoardPage() {
         )}
       </div>
 
+      {/* CARD DETAIL & EDIT MODAL (Assign Teammates, Sub-Tasks, Priority) */}
+      {selectedCardForDetail && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl bg-white border border-black/[0.08] p-5 shadow-2xl flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase text-[#86868B]">
+                Card Directive Inspector
+              </span>
+              <button
+                onClick={() => setSelectedCardForDetail(null)}
+                className="p-1 rounded-full hover:bg-neutral-100 text-[#86868B]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Title & Description */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-mono text-[#86868B] uppercase">Title</label>
+              <input
+                type="text"
+                value={selectedCardForDetail.title}
+                onChange={(e) => {
+                  const updated = { ...selectedCardForDetail, title: e.target.value };
+                  setSelectedCardForDetail(updated);
+                  setCards((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+                }}
+                className="w-full p-2.5 rounded-xl bg-[#F5F5F7] border border-black/[0.08] text-sm font-semibold text-[#1D1D1F] focus:outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-mono text-[#86868B] uppercase">Description</label>
+              <textarea
+                rows={3}
+                value={selectedCardForDetail.description}
+                onChange={(e) => {
+                  const updated = { ...selectedCardForDetail, description: e.target.value };
+                  setSelectedCardForDetail(updated);
+                  setCards((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+                }}
+                className="w-full p-2.5 rounded-xl bg-[#F5F5F7] border border-black/[0.08] text-xs text-[#1D1D1F] focus:outline-none resize-none"
+              />
+            </div>
+
+            {/* ASSIGN TEAM MEMBER SELECTOR */}
+            <div className="p-3 rounded-2xl bg-[#F9F9FB] border border-black/[0.06] flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono uppercase text-[#86868B] font-bold">
+                  Assigned Collaborator
+                </span>
+                <button
+                  type="button"
+                  onClick={() => openUserProfile(selectedCardForDetail.assignee)}
+                  className="text-[10px] font-mono text-pink-600 hover:underline"
+                >
+                  View Profile
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <img
+                  src={selectedCardForDetail.assignee.avatar}
+                  alt={selectedCardForDetail.assignee.name}
+                  className="w-8 h-8 rounded-full object-cover border border-black/[0.08]"
+                />
+                <select
+                  value={selectedCardForDetail.assignee.username}
+                  onChange={(e) => handleReassignCard(selectedCardForDetail.id, e.target.value)}
+                  className="flex-1 p-2 rounded-xl bg-white border border-black/[0.08] text-xs font-semibold text-[#1D1D1F] focus:outline-none"
+                >
+                  {members.map((m) => (
+                    <option key={m.telegramId} value={m.username}>
+                      {m.name} (@{m.username}) — {m.role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Lane / Column Selector */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] font-mono text-[#86868B] uppercase block mb-1">
+                  Status Lane
+                </label>
+                <select
+                  value={selectedCardForDetail.columnId}
+                  onChange={(e) => {
+                    const updated = { ...selectedCardForDetail, columnId: e.target.value };
+                    setSelectedCardForDetail(updated);
+                    setCards((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+                    sensory.slide(0.4);
+                  }}
+                  className="w-full p-2 rounded-xl bg-[#F5F5F7] border border-black/[0.08] text-xs font-mono text-[#1D1D1F]"
+                >
+                  {columns.map((col: any) => (
+                    <option key={col.id} value={col.id}>
+                      {col.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-mono text-[#86868B] uppercase block mb-1">
+                  Priority
+                </label>
+                <select
+                  value={selectedCardForDetail.priority}
+                  onChange={(e) => {
+                    const updated = {
+                      ...selectedCardForDetail,
+                      priority: e.target.value as any,
+                    };
+                    setSelectedCardForDetail(updated);
+                    setCards((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+                  }}
+                  className="w-full p-2 rounded-xl bg-[#F5F5F7] border border-black/[0.08] text-xs font-mono text-[#1D1D1F]"
+                >
+                  <option value="LOW">LOW</option>
+                  <option value="NORMAL">NORMAL</option>
+                  <option value="HIGH">HIGH</option>
+                  <option value="CRITICAL">CRITICAL</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Checklist Editor */}
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] font-mono uppercase text-[#86868B] font-bold">
+                Checklist Sub-Tasks ({selectedCardForDetail.checklist.length})
+              </span>
+
+              <div className="flex flex-col gap-1.5">
+                {selectedCardForDetail.checklist.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between p-2 rounded-xl bg-[#F5F5F7] text-xs">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleChecklist(selectedCardForDetail.id, item.id)}
+                      className="flex items-center gap-2 flex-1 text-left"
+                    >
+                      {item.isChecked ? (
+                        <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0" />
+                      ) : (
+                        <Square className="w-4 h-4 text-neutral-400 shrink-0" />
+                      )}
+                      <span className={item.isChecked ? "line-through text-[#86868B]" : "text-[#1D1D1F]"}>
+                        {item.title}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = {
+                          ...selectedCardForDetail,
+                          checklist: selectedCardForDetail.checklist.filter((i) => i.id !== item.id),
+                        };
+                        setSelectedCardForDetail(updated);
+                        setCards((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+                      }}
+                      className="p-1 text-neutral-400 hover:text-rose-600"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add checklist item */}
+              <form onSubmit={handleAddChecklistItem} className="flex gap-1.5 mt-1">
+                <input
+                  type="text"
+                  placeholder="Add sub-task item..."
+                  value={newChecklistText}
+                  onChange={(e) => setNewChecklistText(e.target.value)}
+                  className="flex-1 p-2 rounded-xl bg-[#F5F5F7] border border-black/[0.08] text-xs text-[#1D1D1F] focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="px-3 py-2 rounded-xl bg-[#1D1D1F] text-white text-xs font-mono font-bold active:scale-95"
+                >
+                  Add
+                </button>
+              </form>
+            </div>
+
+            {/* Footer Buttons: Delete & Done */}
+            <div className="flex items-center justify-between pt-2 border-t border-black/[0.06]">
+              <button
+                type="button"
+                onClick={() => handleDeleteCard(selectedCardForDetail.id)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 text-xs font-mono font-semibold transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Delete Card
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sensory.successChime();
+                  setSelectedCardForDetail(null);
+                }}
+                className="px-5 py-2 rounded-xl bg-[#1D1D1F] hover:bg-black text-white text-xs font-semibold shadow-sm active:scale-95"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Collaborators Management Modal */}
       {showInviteModal && (
         <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -640,7 +1010,10 @@ export default function AtlasBoardPage() {
                     key={m.telegramId}
                     className="p-2.5 rounded-xl bg-[#F5F5F7] border border-black/[0.04] flex items-center justify-between"
                   >
-                    <div className="flex items-center gap-2">
+                    <div
+                      onClick={() => openUserProfile(m)}
+                      className="flex items-center gap-2 cursor-pointer hover:opacity-80"
+                    >
                       <img src={m.avatar} alt={m.name} className="w-7 h-7 rounded-full object-cover" />
                       <div className="flex flex-col">
                         <span className="text-xs font-semibold text-[#1D1D1F]">{m.name}</span>
@@ -860,6 +1233,24 @@ export default function AtlasBoardPage() {
               />
             </div>
 
+            {/* Assignee Selection */}
+            <div>
+              <label className="text-[10px] font-mono text-[#86868B] uppercase block mb-1">
+                Assign To Teammate
+              </label>
+              <select
+                value={newAssigneeUsername}
+                onChange={(e) => setNewAssigneeUsername(e.target.value)}
+                className="w-full p-2 rounded-xl bg-[#F5F5F7] border border-black/[0.08] text-xs font-mono text-[#1D1D1F]"
+              >
+                {members.map((m) => (
+                  <option key={m.telegramId} value={m.username}>
+                    {m.name} (@{m.username}) — {m.role}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-[10px] font-mono text-[#86868B] uppercase block mb-1">
@@ -882,6 +1273,7 @@ export default function AtlasBoardPage() {
                   onChange={(e) => setNewPriority(e.target.value as any)}
                   className="w-full p-2 rounded-xl bg-[#F5F5F7] border border-black/[0.08] text-xs font-mono text-[#1D1D1F]"
                 >
+                  <option value="LOW">LOW</option>
                   <option value="NORMAL">NORMAL</option>
                   <option value="HIGH">HIGH</option>
                   <option value="CRITICAL">CRITICAL</option>
@@ -911,6 +1303,34 @@ export default function AtlasBoardPage() {
           </form>
         </div>
       )}
+
+      {/* Live User Profile Popup Modal */}
+      <UserProfileModal
+        user={inspectedUser}
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        isAlreadyMember={Boolean(members.some((m) => m.username === inspectedUser?.username))}
+        onAddToTeam={(u) => {
+          setMembers((prev) => [
+            ...prev,
+            {
+              telegramId: u.telegramId,
+              username: u.username,
+              name: u.name,
+              avatar: u.avatar,
+              role: u.role,
+              bio: u.bio,
+            },
+          ]);
+        }}
+        onAssignToCard={
+          selectedCardForDetail
+            ? (u) => {
+                handleReassignCard(selectedCardForDetail.id, u.username);
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }

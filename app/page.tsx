@@ -51,7 +51,7 @@ export default function EcosystemDashboard() {
   );
   const SHARE_URL = `https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${SHARE_TEXT}`;
 
-  const [activeFilter, setActiveFilter] = useState<"ALL" | "SCF" | "TRELLO" | "APPLE" | "INFRA" | "AMBUSH" | "WEB3" | "VIRAL">("ALL");
+  const [activeFilter, setActiveFilter] = useState<string>("ALL");
 
   const apps = [
     // Flagship Meme Ecosystem: Stripper College Fund ($SCF)
@@ -60,6 +60,7 @@ export default function EcosystemDashboard() {
       name: "The Champagne Stage",
       path: "/champagne-stage",
       category: "SCF",
+      categories: ["SCF", "CAT4", "CAT2"],
       badge: "DEGEN SPOT & HONEY POT",
       tollbooth: "50-500 Stars & Whale Desk",
       icon: Flame,
@@ -71,6 +72,7 @@ export default function EcosystemDashboard() {
       name: "Stripper College Fund ($SCF)",
       path: "/scf-terminal",
       category: "SCF",
+      categories: ["SCF", "CAT2"],
       badge: "TUITION DESK",
       tollbooth: "50-500 Stars Tipping",
       icon: GraduationCap,
@@ -82,8 +84,9 @@ export default function EcosystemDashboard() {
       name: "ElizaOS Agent Swarm",
       path: "/eliza-agents",
       category: "SCF",
+      categories: ["SCF", "CAT4"],
       badge: "AUTONOMOUS AI",
-      tollbooth: "OpenRouter & Heuristic Swarm",
+      tollbooth: "DeepSeek & Swarm",
       icon: Bot,
       color: "text-pink-300 bg-pink-950/80 border-pink-600 shadow-sm",
       desc: "24/7 autonomous agents (Destiny, Big Mike Bouncer, Simp Sweeper) running on X & Telegram to pump liquidity.",
@@ -93,6 +96,7 @@ export default function EcosystemDashboard() {
       name: "The Velvet Rope VIP Gate",
       path: "/velvet-rope",
       category: "SCF",
+      categories: ["SCF", "CAT2"],
       badge: "VIP CREDENTIAL",
       tollbooth: "100 Stars ($2.00)",
       icon: QrCode,
@@ -104,6 +108,7 @@ export default function EcosystemDashboard() {
       name: "Make It Rain: Pleaser Tap",
       path: "/pleaser-tap",
       category: "SCF",
+      categories: ["SCF", "CAT2"],
       badge: "TAP-TO-EARN",
       tollbooth: "50-100 Star Boosts",
       icon: Coins,
@@ -115,6 +120,7 @@ export default function EcosystemDashboard() {
       name: "The Redacted Syllabus",
       path: "/redacted-syllabus",
       category: "SCF",
+      categories: ["SCF", "CAT5"],
       badge: "C&D GENERATOR",
       tollbooth: "Viral Twitter Ammunition",
       icon: Scale,
@@ -128,6 +134,7 @@ export default function EcosystemDashboard() {
       name: "ATLAS OS (Trello TMA)",
       path: "/atlas-board",
       category: "TRELLO",
+      categories: ["TRELLO", "APPLE"],
       badge: "CERAMIC WHITE",
       tollbooth: "Star Bounties & Collab",
       icon: Trello,
@@ -141,6 +148,7 @@ export default function EcosystemDashboard() {
       name: "Launchpad Mission Control",
       path: "/launch-board",
       category: "TRELLO",
+      categories: ["TRELLO"],
       badge: "TOKEN LAUNCH OS",
       tollbooth: "Campaign Engine",
       icon: Kanban,
@@ -154,6 +162,7 @@ export default function EcosystemDashboard() {
       name: "AURA Life Capsule",
       path: "/aura-vault",
       category: "APPLE",
+      categories: ["APPLE", "CAT5"],
       badge: "ZERO-KNOWLEDGE",
       tollbooth: "1,200 Stars ($24)",
       icon: Lock,
@@ -165,6 +174,7 @@ export default function EcosystemDashboard() {
       name: "CHRONOS Board",
       path: "/chronos-board",
       category: "APPLE",
+      categories: ["APPLE"],
       badge: "ASYNCHRONOUS GOV",
       tollbooth: "250 Stars ($5.00)",
       icon: FileText,
@@ -176,6 +186,7 @@ export default function EcosystemDashboard() {
       name: "MONOLITH Escrow",
       path: "/monolith-desk",
       category: "APPLE",
+      categories: ["APPLE"],
       badge: "DARK POOL DESK",
       tollbooth: "500 Stars / 15 bps",
       icon: Sliders,
@@ -187,6 +198,7 @@ export default function EcosystemDashboard() {
       name: "SILENCE Sanctuary",
       path: "/silence-focus",
       category: "APPLE",
+      categories: ["APPLE"],
       badge: "40HZ GAMMA FLOW",
       tollbooth: "100 Stars Stake",
       icon: Moon,
@@ -198,6 +210,7 @@ export default function EcosystemDashboard() {
       name: "ATELIER Artifacts",
       path: "/atelier-drops",
       category: "APPLE",
+      categories: ["APPLE"],
       badge: "PHYSICAL DROPS",
       tollbooth: "250 Stars VIP",
       icon: Package,
@@ -211,6 +224,7 @@ export default function EcosystemDashboard() {
       name: "The Identity Node",
       path: "/app-auth",
       category: "INFRA",
+      categories: ["INFRA"],
       badge: "HMAC-SHA256",
       tollbooth: "Auth & Sync",
       icon: ShieldCheck,
@@ -222,6 +236,7 @@ export default function EcosystemDashboard() {
       name: "The Tollbooth Protocol",
       path: "/star-buster",
       category: "INFRA",
+      categories: ["INFRA"],
       badge: "LIVE XTR",
       tollbooth: "10-100 Stars",
       icon: Star,
@@ -233,6 +248,7 @@ export default function EcosystemDashboard() {
       name: "The Adsgram Gate",
       path: "/ad-gate",
       category: "INFRA",
+      categories: ["INFRA"],
       badge: "HYBRID READY",
       tollbooth: "Ad or 1-Star Bypass",
       icon: Play,
@@ -244,6 +260,7 @@ export default function EcosystemDashboard() {
       name: "Handle Radar (Layer 1 OSINT)",
       path: "/handle-radar",
       category: "INFRA",
+      categories: ["INFRA", "CAT5"],
       badge: "RECON ENGINE",
       tollbooth: "25-Star Pro Audit",
       icon: Radar,
@@ -257,6 +274,7 @@ export default function EcosystemDashboard() {
       name: "The Visual Ambush",
       path: "/render-trap",
       category: "AMBUSH",
+      categories: ["AMBUSH", "CAT4"],
       badge: "4K GPU",
       tollbooth: "50 Stars ($1.00)",
       icon: Sparkles,
@@ -268,6 +286,7 @@ export default function EcosystemDashboard() {
       name: "The Doxx-Radar",
       path: "/osint-radar",
       category: "AMBUSH",
+      categories: ["AMBUSH", "CAT5"],
       badge: "OSINT RADAR",
       tollbooth: "100 Stars ($2.00)",
       icon: Eye,
@@ -279,6 +298,7 @@ export default function EcosystemDashboard() {
       name: "The Contract Slayer",
       path: "/legal-blade",
       category: "AMBUSH",
+      categories: ["AMBUSH", "CAT5"],
       badge: "LEGAL AI",
       tollbooth: "250 Stars ($5.00)",
       icon: FileCheck,
@@ -290,7 +310,8 @@ export default function EcosystemDashboard() {
       name: "The VibeSync Companion",
       path: "/parasocial-core",
       category: "AMBUSH",
-      badge: "OPENROUTER AI",
+      categories: ["AMBUSH", "CAT4"],
+      badge: "DEEPSEEK AI",
       tollbooth: "150 Stars ($3.00)",
       icon: MessageCircle,
       color: "text-pink-400 bg-pink-950/60 border-pink-800",
@@ -303,6 +324,7 @@ export default function EcosystemDashboard() {
       name: "The Sybil Tasker",
       path: "/airdrop-farm",
       category: "WEB3",
+      categories: ["WEB3"],
       badge: "AUTO-PILOT",
       tollbooth: "100 Stars ($2.00)",
       icon: Cpu,
@@ -314,6 +336,7 @@ export default function EcosystemDashboard() {
       name: "The Watermark Assassin",
       path: "/content-wash",
       category: "WEB3",
+      categories: ["WEB3"],
       badge: "HASH MUTATOR",
       tollbooth: "50 Stars / Ad",
       icon: Scissors,
@@ -325,6 +348,7 @@ export default function EcosystemDashboard() {
       name: "The Zero-DTE Pool",
       path: "/flash-casino",
       category: "WEB3",
+      categories: ["WEB3"],
       badge: "60s BINARY",
       tollbooth: "3% House Rake",
       icon: Zap,
@@ -338,6 +362,7 @@ export default function EcosystemDashboard() {
       name: "TrenchRadar",
       path: "/trench-radar",
       category: "VIRAL",
+      categories: ["VIRAL", "CAT5"],
       badge: "PUMP.FUN SCAN",
       tollbooth: "25 Stars ($0.50)",
       icon: Crosshair,
@@ -349,6 +374,7 @@ export default function EcosystemDashboard() {
       name: "Stars Ranker",
       path: "/stars-ranker",
       category: "VIRAL",
+      categories: ["VIRAL", "CAT2"],
       badge: "CLOUT LEADERBOARD",
       tollbooth: "50-1000 Stars",
       icon: Trophy,
@@ -360,6 +386,7 @@ export default function EcosystemDashboard() {
       name: "The Pinned Throne",
       path: "/king-throne",
       category: "VIRAL",
+      categories: ["VIRAL", "CAT2"],
       badge: "AUCTION RAKE",
       tollbooth: "10% House Cut",
       icon: Crown,
@@ -371,6 +398,7 @@ export default function EcosystemDashboard() {
       name: "AI Degen Roast",
       path: "/clout-roast",
       category: "VIRAL",
+      categories: ["VIRAL", "CAT4"],
       badge: "VIRAL ROAST",
       tollbooth: "50 Stars ($1.00)",
       icon: Skull,
@@ -382,6 +410,7 @@ export default function EcosystemDashboard() {
       name: "Burn Arena PvP",
       path: "/burn-arena",
       category: "VIRAL",
+      categories: ["VIRAL", "CAT2"],
       badge: "COIN BATTLE",
       tollbooth: "5% House Rake",
       icon: Swords,
@@ -393,6 +422,7 @@ export default function EcosystemDashboard() {
       name: "Group Partner Portal",
       path: "/affiliate-portal",
       category: "VIRAL",
+      categories: ["VIRAL", "CAT2"],
       badge: "PARTNER REV-SHARE",
       tollbooth: "30% Lifetime Cut",
       icon: Users,
@@ -401,7 +431,12 @@ export default function EcosystemDashboard() {
     },
   ];
 
-  const filteredApps = activeFilter === "ALL" ? apps : apps.filter((a) => a.category === activeFilter);
+  const filteredApps =
+    activeFilter === "ALL"
+      ? apps
+      : apps.filter(
+          (a) => a.categories.includes(activeFilter) || a.category === activeFilter
+        );
 
   return (
     <div className="flex flex-col gap-6">
@@ -419,7 +454,7 @@ export default function EcosystemDashboard() {
           <div className="flex items-center gap-1.5 bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
             <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
-              29/29 ONLINE
+              30/30 ONLINE
             </span>
           </div>
         </div>
@@ -429,7 +464,7 @@ export default function EcosystemDashboard() {
             The Saipion Syndicate
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            29-App Telegram Mini App Cash-Flow &amp; Asymmetric Work OS
+            30-App Telegram Mini App Cash-Flow &amp; Asymmetric Work OS
           </p>
         </div>
 
@@ -475,23 +510,24 @@ export default function EcosystemDashboard() {
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none font-mono text-xs">
         {[
           { key: "ALL", label: "All 30 Plays" },
+          { key: "CAT2", label: "👑 Cat 2: Vanity & Flex (6)" },
+          { key: "CAT4", label: "🤖 Cat 4: AI Ambush (5)" },
+          { key: "CAT5", label: "👁️ Cat 5: Paranoia & OSINT (6)" },
           { key: "SCF", label: "👠 $SCF Lore (6)" },
           { key: "TRELLO", label: "Trello TMA (2)" },
           { key: "APPLE", label: "Apple Minimal (5)" },
           { key: "INFRA", label: "Infrastructure (4)" },
-          { key: "AMBUSH", label: "AI Ambush (4)" },
           { key: "WEB3", label: "Web3 Scalers (3)" },
-          { key: "VIRAL", label: "Viral Arbitrage (6)" },
         ].map((tab) => (
           <button
             key={tab.key}
             onClick={() => {
-              setActiveFilter(tab.key as any);
+              setActiveFilter(tab.key);
               sensory.tick();
             }}
             className={`whitespace-nowrap px-3 py-1.5 rounded-lg border transition-all ${
               activeFilter === tab.key
-                ? "bg-white text-black font-bold border-white"
+                ? "bg-white text-black font-bold border-white shadow-sm"
                 : "bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700"
             }`}
           >
@@ -517,11 +553,26 @@ export default function EcosystemDashboard() {
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <h3 className="text-sm font-semibold text-white">{app.name}</h3>
                       <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950 border border-emerald-800 px-1.5 rounded">
                         {app.badge}
                       </span>
+                      {app.categories?.includes("CAT2") && (
+                        <span className="text-[9px] font-mono text-amber-300 bg-amber-950/80 border border-amber-700/80 px-1.5 rounded">
+                          CAT 2
+                        </span>
+                      )}
+                      {app.categories?.includes("CAT4") && (
+                        <span className="text-[9px] font-mono text-purple-300 bg-purple-950/80 border border-purple-700/80 px-1.5 rounded">
+                          CAT 4
+                        </span>
+                      )}
+                      {app.categories?.includes("CAT5") && (
+                        <span className="text-[9px] font-mono text-cyan-300 bg-cyan-950/80 border border-cyan-700/80 px-1.5 rounded">
+                          CAT 5
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5 font-mono text-xs">
                       <span className="text-slate-500 text-[10px]">{app.id}</span>

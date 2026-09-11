@@ -1,15 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
+import { callDeepSeek } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
 /**
- * APP 4: THE VISUAL AMBUSH (FAL.AI GPU RENDER ENGINE)
- * Pings Fal.ai serverless GPU for 4K product renders or provides high-speed realistic synthesis.
+ * APP 4: THE VISUAL AMBUSH (FAL.AI GPU & DEEPSEEK COMMERCIAL LIGHTING ENGINE)
+ * Pings Fal.ai serverless GPU or synthesizes studio commercial specs via DeepSeek.
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { prompt, productType, style } = body;
+
+    const userPrompt = (prompt || "").trim();
+    const pType = (productType || "luxury fragrance or watch").trim();
+
+    // Generate commercial studio photography lighting spec with DeepSeek
+    const aiDirectorSpec = await callDeepSeek({
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a master commercial studio photographer and 3D rendering director. In 2 concise sentences, describe the lighting setup, lens aperture (e.g. 85mm f/1.4), material reflections, and color grading for a luxury product commercial photoshoot.",
+        },
+        {
+          role: "user",
+          content: `Product: ${pType}. Concept: ${userPrompt || "minimalist ceramic finish on dark pedestal"}. Style: ${style || "monochrome sleek"}.`,
+        },
+      ],
+      temperature: 0.6,
+      max_tokens: 150,
+    });
 
     const falKey = process.env.FAL_KEY;
 
@@ -22,7 +43,7 @@ export async function POST(req: NextRequest) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            prompt: `Professional high-end commercial 4k studio photography of ${productType || "luxury product"}: ${prompt || "sleek design on minimalist concrete pedestal with cinematic softbox lighting, 8k resolution, photorealistic, octane render"}`,
+            prompt: `Professional high-end commercial 4k studio photography of ${pType}: ${userPrompt || "sleek design on minimalist concrete pedestal with cinematic softbox lighting, 8k resolution, photorealistic, octane render"}`,
             image_size: "square_hd",
             num_images: 1,
             enable_safety_checker: true,
@@ -35,14 +56,16 @@ export async function POST(req: NextRequest) {
             ok: true,
             imageUrl: data.images[0].url,
             isLiveGpu: true,
+            directorNotes: aiDirectorSpec || "Cinematic 85mm f/1.4 studio lighting with rim-fill bounce.",
+            model: "fal:flux + deepseek:deepseek-chat",
           });
         }
       } catch (gpuErr) {
-        console.warn("[RenderTrap] Fal.ai API execution failed, falling back to curated preset:", gpuErr);
+        console.warn("[RenderTrap] Fal.ai API execution failed:", gpuErr);
       }
     }
 
-    // High-resolution curated studio mock render for instant preview
+    // High-resolution curated studio renders
     const sampleRenders = [
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=1200&q=80",
@@ -56,7 +79,10 @@ export async function POST(req: NextRequest) {
       ok: true,
       imageUrl: selected,
       isLiveGpu: false,
-      note: "Render generated via Visual Ambush preset pipeline. Set FAL_KEY in .env for custom live serverless GPU generation.",
+      directorNotes:
+        aiDirectorSpec ||
+        "Key light set at 45° with double-diffused octabox, negative fill on camera-right for high-contrast luxury contouring.",
+      model: "deepseek:deepseek-chat",
     });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });

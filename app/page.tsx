@@ -47,7 +47,7 @@ export default function EcosystemDashboard() {
   const BOT_HANDLE = "saipion_bot";
   const APP_URL = "https://elegant-chandrasekhar.vercel.app";
   const SHARE_TEXT = encodeURIComponent(
-    "⚡ Just accessed the Saipion Syndicate TMA Tollbooth Engine on Telegram! Explore 28 live cash-flow apps:"
+    "⚡ Just accessed the Saipion Syndicate TMA Tollbooth Engine on Telegram! Explore 30 live cash-flow apps:"
   );
   const SHARE_URL = `https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${SHARE_TEXT}`;
 
@@ -55,6 +55,17 @@ export default function EcosystemDashboard() {
 
   const apps = [
     // Flagship Meme Ecosystem: Stripper College Fund ($SCF)
+    {
+      id: "APP-30",
+      name: "The Champagne Stage",
+      path: "/champagne-stage",
+      category: "SCF",
+      badge: "DEGEN SPOT & HONEY POT",
+      tollbooth: "50-500 Stars & Whale Desk",
+      icon: Flame,
+      color: "text-pink-400 bg-pink-950/80 border-pink-500 shadow-[0_0_15px_rgba(255,0,127,0.3)]",
+      desc: "Strip club degen spot: browse student performer roster, fund tuition goals, unlock private study/dance teasers, and 1-on-1 DeepSeek AI chat.",
+    },
     {
       id: "APP-24",
       name: "Stripper College Fund ($SCF)",
@@ -463,8 +474,8 @@ export default function EcosystemDashboard() {
       {/* Category Filter Chips */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none font-mono text-xs">
         {[
-          { key: "ALL", label: "All 29 Plays" },
-          { key: "SCF", label: "👠 $SCF Lore (5)" },
+          { key: "ALL", label: "All 30 Plays" },
+          { key: "SCF", label: "👠 $SCF Lore (6)" },
           { key: "TRELLO", label: "Trello TMA (2)" },
           { key: "APPLE", label: "Apple Minimal (5)" },
           { key: "INFRA", label: "Infrastructure (4)" },
@@ -540,7 +551,7 @@ export default function EcosystemDashboard() {
           Syndicate Operational Advantage
         </span>
         <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-          All 23 apps are wired to the unified Omni-Hook Telegram router (<code className="text-cyan-300">/api/telegram-handler</code>), authenticated via cryptographic HMAC-SHA256, and monetized via Telegram Stars (XTR) 1-click checkout, Adsgram rewarded video ads, and 30% group affiliate rev-share.
+          All 30 apps are wired to the unified Omni-Hook Telegram router (<code className="text-cyan-300">/api/telegram-handler</code>), authenticated via cryptographic HMAC-SHA256, and monetized via Telegram Stars (XTR) 1-click checkout, Adsgram rewarded video ads, and 30% group affiliate rev-share.
         </p>
       </div>
     </div>

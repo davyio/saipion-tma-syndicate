@@ -89,6 +89,9 @@ export async function POST(req: NextRequest) {
         } else if (startParam === "scf" || startParam === "scf_terminal") {
           targetApp = "scf-terminal";
           buttonText = "Open $SCF Tuition Desk";
+        } else if (startParam === "champagne" || startParam === "champagne_stage" || startParam === "stage") {
+          targetApp = "champagne-stage";
+          buttonText = "Enter The Champagne Stage VIP";
         } else if (startParam === "velvet_rope" || startParam === "vip") {
           targetApp = "velvet-rope";
           buttonText = "Enter Velvet Rope VIP Gate";
@@ -107,7 +110,7 @@ export async function POST(req: NextRequest) {
 
         await telegramBot.sendMessage({
           chat_id: chatId,
-          text: `⚡ *THE SAIPION SYNDICATE ENGINE*\\n\\nModule Active: \`${targetApp ? `/${targetApp}` : "Matrix Hub"}\`\\nTap below to enter the Mini App container.`,
+          text: `⚡ *THE SAIPION SYNDICATE ENGINE*\n\nModule Active: \`${targetApp ? `/${targetApp}` : "Matrix Hub"}\`\nTap below to enter the Mini App container.`,
           parse_mode: "Markdown",
           reply_markup: {
             inline_keyboard: [
@@ -119,21 +122,27 @@ export async function POST(req: NextRequest) {
               ],
               [
                 {
-                  text: "👠 $SCF Tuition Desk (App 24)",
-                  web_app: { url: `${appUrl}/scf-terminal` },
+                  text: "🍾 Champagne Stage (App 30)",
+                  web_app: { url: `${appUrl}/champagne-stage` },
                 },
                 {
-                  text: "🤖 ElizaOS Swarm (App 28)",
-                  web_app: { url: `${appUrl}/eliza-agents` },
+                  text: "👠 $SCF Tuition Desk (App 24)",
+                  web_app: { url: `${appUrl}/scf-terminal` },
                 },
               ],
               [
                 {
+                  text: "🤖 ElizaOS Swarm (App 28)",
+                  web_app: { url: `${appUrl}/eliza-agents` },
+                },
+                {
                   text: "📋 ATLAS Trello Board (App 23)",
                   web_app: { url: `${appUrl}/atlas-board` },
                 },
+              ],
+              [
                 {
-                  text: "🌐 All 28 Apps Matrix",
+                  text: "🌐 All 30 Apps Matrix",
                   web_app: { url: `${appUrl}` },
                 },
               ],

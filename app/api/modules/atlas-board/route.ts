@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { callDeepSeek } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -158,60 +159,120 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    // Handle Onboarding Lore Task Generation
+    // Handle Onboarding Lore Task Generation via DeepSeek
     if (action === "generate_onboarding_tasks") {
       const obj = objective || "Launch memecoin with $5-10M market cap in 24 hours";
       const lore = brandLore || "Stripper College Fund / Destiny Dev";
       const selectedChannels = channels || ["X/Twitter", "Telegram", "Pump.fun"];
 
-      const generatedCards = [
-        {
-          id: "task-gen-1",
-          columnId: "col_progress",
-          title: `Deploy ${lore} Core Narrative Ammunition`,
-          description: `Execute objective: "${obj}". Stage initial viral hooks across ${selectedChannels.join(", ")}.`,
-          category: "Campaign Objective",
-          priority: "CRITICAL",
-          dueDate: "Launch T-24h",
-          starBounty: 250,
-          assignee: initialMembers[0],
-          checklist: [
-            { id: "g1", title: "Codify 10 high-friction narrative hooks", isChecked: true },
-            { id: "g2", title: "Pre-seed 5 burner amplifier handles", isChecked: false },
-            { id: "g3", title: "Lock initial liquidity for 4-year duration", isChecked: false },
-          ],
-        },
-        {
-          id: "task-gen-2",
-          columnId: "col_backlog",
-          title: `Activate Channel Blitz: ${selectedChannels.slice(0, 2).join(" & ")}`,
-          description: `Coordinate simultaneous raid at 3:00 AM EST shift change across chosen distribution channels.`,
-          category: "Distribution",
-          priority: "HIGH",
-          dueDate: "Launch T-12h",
-          starBounty: 200,
-          assignee: initialMembers[1],
-          checklist: [
-            { id: "g4", title: "Sync post schedule with ElizaOS autonomous agents", isChecked: false },
-            { id: "g5", title: "Push custom 30% rev-share links to 10 group managers", isChecked: false },
-          ],
-        },
-        {
-          id: "task-gen-3",
-          columnId: "col_backlog",
-          title: `Audit Star Tollbooth & VIP Conversion`,
-          description: `Verify Star checkout flows and receipt logging for all in-app microtransactions.`,
-          category: "Monetization",
-          priority: "NORMAL",
-          dueDate: "Launch T-6h",
-          starBounty: 150,
-          assignee: initialMembers[2],
-          checklist: [
-            { id: "g6", title: "Confirm pre_checkout_query auto-approvals in < 2s", isChecked: false },
-            { id: "g7", title: "Test Telegram invoice deep links", isChecked: false },
-          ],
-        },
-      ];
+      let generatedCards: any[] = [];
+
+      try {
+        const deepSeekPrompt = `You are an elite agile project manager and growth architect for a Web3 viral token launch.
+Campaign Objective: "${obj}"
+Brand & Lore: "${lore}"
+Target Channels: ${selectedChannels.join(", ")}
+
+Generate 3-4 structured, punchy Kanban task directives. Output ONLY a valid JSON array of objects with these exact keys:
+[
+  {
+    "title": "Short punchy directive title",
+    "description": "Clear tactical scope",
+    "category": "Lore | Viral PR | Distribution | Smart Contract | Monetization",
+    "priority": "HIGH" | "CRITICAL" | "NORMAL",
+    "columnId": "col_progress" | "col_backlog",
+    "starBounty": 200,
+    "checklist": [{"id": "c1", "title": "Sub-task step 1", "isChecked": false}, {"id": "c2", "title": "Sub-task step 2", "isChecked": false}]
+  }
+]
+No other text, markdown blocks, or explanation. Just the raw JSON array.`;
+
+        const aiResponse = await callDeepSeek({
+          messages: [{ role: "user", content: deepSeekPrompt }],
+          temperature: 0.7,
+          max_tokens: 800,
+          model: "deepseek-chat",
+        });
+
+        if (aiResponse) {
+          const cleanJson = aiResponse.replace(/```json/g, "").replace(/```/g, "").trim();
+          const parsed = JSON.parse(cleanJson);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            generatedCards = parsed.map((c, i) => ({
+              id: `task-ai-${Date.now()}-${i}`,
+              columnId: c.columnId || (i === 0 ? "col_progress" : "col_backlog"),
+              title: c.title,
+              description: c.description,
+              category: c.category || "Sprint",
+              priority: c.priority || "NORMAL",
+              dueDate: "Launch Active",
+              starBounty: Number(c.starBounty) || 150,
+              assignee: initialMembers[i % initialMembers.length],
+              checklist: Array.isArray(c.checklist)
+                ? c.checklist.map((item: any, ci: number) => ({
+                    id: `chk-ai-${i}-${ci}`,
+                    title: typeof item === "string" ? item : item.title || "Review deliverable",
+                    isChecked: Boolean(item.isChecked),
+                  }))
+                : [{ id: `chk-ai-${i}-0`, title: "Execute directive", isChecked: false }],
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn("[AtlasBoard] DeepSeek onboarding generation fallback:", err);
+      }
+
+      // Fallback if DeepSeek is offline
+      if (generatedCards.length === 0) {
+        generatedCards = [
+          {
+            id: "task-gen-1",
+            columnId: "col_progress",
+            title: `Deploy ${lore} Core Narrative Ammunition`,
+            description: `Execute objective: "${obj}". Stage initial viral hooks across ${selectedChannels.join(", ")}.`,
+            category: "Campaign Objective",
+            priority: "CRITICAL",
+            dueDate: "Launch T-24h",
+            starBounty: 250,
+            assignee: initialMembers[0],
+            checklist: [
+              { id: "g1", title: "Codify 10 high-friction narrative hooks", isChecked: true },
+              { id: "g2", title: "Pre-seed 5 burner amplifier handles", isChecked: false },
+              { id: "g3", title: "Lock initial liquidity for 4-year duration", isChecked: false },
+            ],
+          },
+          {
+            id: "task-gen-2",
+            columnId: "col_backlog",
+            title: `Activate Channel Blitz: ${selectedChannels.slice(0, 2).join(" & ")}`,
+            description: `Coordinate simultaneous raid at 3:00 AM EST shift change across chosen distribution channels.`,
+            category: "Distribution",
+            priority: "HIGH",
+            dueDate: "Launch T-12h",
+            starBounty: 200,
+            assignee: initialMembers[1],
+            checklist: [
+              { id: "g4", title: "Sync post schedule with ElizaOS autonomous agents", isChecked: false },
+              { id: "g5", title: "Push custom 30% rev-share links to 10 group managers", isChecked: false },
+            ],
+          },
+          {
+            id: "task-gen-3",
+            columnId: "col_backlog",
+            title: `Audit Star Tollbooth & VIP Conversion`,
+            description: `Verify Star checkout flows and receipt logging for all in-app microtransactions.`,
+            category: "Monetization",
+            priority: "NORMAL",
+            dueDate: "Launch T-6h",
+            starBounty: 150,
+            assignee: initialMembers[2],
+            checklist: [
+              { id: "g6", title: "Confirm pre_checkout_query auto-approvals in < 2s", isChecked: false },
+              { id: "g7", title: "Test Telegram invoice deep links", isChecked: false },
+            ],
+          },
+        ];
+      }
 
       return NextResponse.json({
         ok: true,

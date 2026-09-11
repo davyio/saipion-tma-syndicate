@@ -2,6 +2,7 @@ import { ElizaCharacter } from "./types";
 import { destinyCharacter } from "./characters/destiny";
 import { bouncerCharacter } from "./characters/bouncer";
 import { simpSweeperCharacter } from "./characters/simp-sweeper";
+import { callDeepSeek } from "../ai";
 
 export class ElizaRuntime {
   private characters: Map<string, ElizaCharacter> = new Map();
@@ -34,38 +35,19 @@ export class ElizaRuntime {
       throw new Error(`Character ${characterName} not registered in ElizaOS runtime.`);
     }
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (apiKey) {
-      try {
-        const messages = [
-          { role: "system", content: `${char.system}\n\nBIO:\n${char.bio.join("\n")}\n\nLORE:\n${char.lore.join("\n")}` },
-          { role: "user", content: userMessage },
-        ];
+    // 1. Primary: DeepSeek AI Engine
+    const deepSeekReply = await callDeepSeek({
+      messages: [
+        { role: "system", content: `${char.system}\n\nBIO:\n${char.bio.join("\n")}\n\nLORE:\n${char.lore.join("\n")}` },
+        { role: "user", content: userMessage },
+      ],
+      temperature: 0.8,
+      max_tokens: 350,
+      model: "deepseek-chat",
+    });
 
-        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://elegant-chandrasekhar.vercel.app",
-            "X-Title": "Saipion Syndicate ElizaOS",
-          },
-          body: JSON.stringify({
-            model: "meta-llama/llama-3.1-8b-instruct:free",
-            messages,
-            temperature: 0.8,
-            max_tokens: 300,
-          }),
-        });
-
-        const data = await res.json();
-        const text = data.choices?.[0]?.message?.content;
-        if (text) {
-          return { response: text.trim(), character: char.name, model: "openrouter:llama-3.1-8b" };
-        }
-      } catch (err) {
-        console.warn("[ElizaRuntime] OpenRouter invocation fallback triggered:", err);
-      }
+    if (deepSeekReply) {
+      return { response: deepSeekReply.trim(), character: char.name, model: "deepseek:deepseek-chat" };
     }
 
     // Heuristic contextual fallback matching character tone & lore

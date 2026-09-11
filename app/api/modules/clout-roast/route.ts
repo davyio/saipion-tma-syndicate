@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { callDeepSeek } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -13,35 +14,22 @@ export async function POST(req: NextRequest) {
 
     const targetHandle = (handle || "@trader_anon").trim();
 
-    const openRouterKey = process.env.OPENROUTER_API_KEY;
+    // 1. Primary: DeepSeek AI Engine
+    const deepSeekRoast = await callDeepSeek({
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an elite, sarcastic crypto degen roaster. Roast the following Telegram handle and profile ruthlessly in 3 punchy, hilarious sentences.",
+        },
+        { role: "user", content: `Roast handle: ${targetHandle}` },
+      ],
+      max_tokens: 180,
+      temperature: 0.9,
+      model: "deepseek-chat",
+    });
 
-    let roastText = "";
-    if (openRouterKey) {
-      try {
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${openRouterKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "nousresearch/hermes-3-llama-3.1-8b",
-            messages: [
-              {
-                role: "system",
-                content: "You are an elite, sarcastic crypto degen roaster. Roast the following Telegram handle and profile ruthlessly in 3 punchy, hilarious sentences.",
-              },
-              { role: "user", content: `Roast handle: ${targetHandle}` },
-            ],
-            max_tokens: 150,
-          }),
-        });
-        const data = await response.json();
-        roastText = data.choices?.[0]?.message?.content;
-      } catch (e) {
-        // Fallback
-      }
-    }
+    let roastText = deepSeekRoast || "";
 
     if (!roastText) {
       roastText = `${targetHandle} has 'Builder' in their bio but hasn't shipped a line of code since 2021. You've held bags through three consecutive halving cycles and still tell your family you're 'hedging macroeconomic downside.' The only thing decentralizing in your portfolio is your net worth.`;

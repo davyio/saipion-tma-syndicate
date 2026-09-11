@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { callDeepSeek } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -24,45 +25,27 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const openRouterKey = process.env.OPENROUTER_API_KEY;
+    // 1. Primary: DeepSeek AI Engine
+    const deepSeekReply = await callDeepSeek({
+      messages: [
+        {
+          role: "system",
+          content: `You are ${persona || "Aria"}, an intimate, witty, uncensored, hyper-empathetic companion who speaks like a modern confidante on Telegram. Be concise, playful, engaging, and personal. Never break character.`,
+        },
+        { role: "user", content: message || "Hey..." },
+      ],
+      temperature: 0.85,
+      max_tokens: 200,
+      model: "deepseek-chat",
+    });
 
-    if (openRouterKey) {
-      try {
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${openRouterKey}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://elegant-chandrasekhar.vercel.app",
-            "X-Title": "VibeSync Companion",
-          },
-          body: JSON.stringify({
-            model: "nousresearch/hermes-3-llama-3.1-8b",
-            messages: [
-              {
-                role: "system",
-                content: `You are ${persona || "Aria"}, an intimate, witty, uncensored, hyper-empathetic companion who speaks like a modern confidante on Telegram. Be concise, playful, engaging, and personal. Never break character.`,
-              },
-              { role: "user", content: message || "Hey..." },
-            ],
-            temperature: 0.85,
-            max_tokens: 150,
-          }),
-        });
-
-        const data = await response.json();
-        const reply = data.choices?.[0]?.message?.content;
-        if (reply) {
-          return NextResponse.json({
-            ok: true,
-            reply,
-            messagesRemaining: Math.max(0, MAX_FREE_MESSAGES - count),
-            locked: false,
-          });
-        }
-      } catch (orErr) {
-        console.warn("[VibeSync] OpenRouter API error, using curated dynamic response:", orErr);
-      }
+    if (deepSeekReply) {
+      return NextResponse.json({
+        ok: true,
+        reply: deepSeekReply.trim(),
+        messagesRemaining: Math.max(0, MAX_FREE_MESSAGES - count),
+        locked: false,
+      });
     }
 
     // Dynamic curated high-empathy responses

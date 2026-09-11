@@ -4,13 +4,13 @@ export const dynamic = "force-dynamic";
 
 /**
  * APP 23: ATLAS OS (ASYMMETRIC TELEGRAM TRELLO ENGINE)
- * Multi-board project management, teammate RBAC permissions, rich cards,
- * interactive checklists, and Telegram Star bounties.
+ * Multi-board management, collaborator add/remove, template switcher,
+ * onboarding lore task generator, checklists, and Star bounties.
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { action, cardId, columnId, checklistId, newCard, inviteRole } = body;
+    const { action, template = "scf_launch", objective, brandLore, channels, newMember, memberIdToRemove } = body;
 
     const initialMembers = [
       {
@@ -50,112 +50,179 @@ export async function POST(req: NextRequest) {
       { id: "col_done", title: "Completed", badgeColor: "bg-emerald-100 text-emerald-700" },
     ];
 
-    const initialCards = [
-      {
-        id: "card-101",
-        columnId: "col_progress",
-        title: "Deploy High-Resolution 3D Asset Viewer",
-        description: "Integrate continuous gyroscope orientation rendering for the Atelier luxury drops interface.",
-        category: "Frontend",
-        priority: "HIGH",
-        dueDate: "Today, 18:00",
-        starBounty: 150,
-        assignee: initialMembers[2], // Sophia
-        checklist: [
-          { id: "chk-1", title: "Verify WebGL shader pipeline", isChecked: true },
-          { id: "chk-2", title: "Calibrate device orientation listener", isChecked: true },
-          { id: "chk-3", title: "Run 60 FPS mobile audit", isChecked: false },
+    // Templates Library
+    const TEMPLATES: Record<string, { title: string; cards: any[] }> = {
+      blank: {
+        title: "Blank Canvas // Fresh Sprint",
+        cards: [],
+      },
+      scf_launch: {
+        title: "Stripper College Fund ($SCF) // D-Day Launchpad",
+        cards: [
+          {
+            id: "card-scf-1",
+            columnId: "col_progress",
+            title: "Destiny Persona Incubation & MCAT Tweets",
+            description: "Seed 10 viral tweets from the dressing room showing biochem textbooks and cracked iPhone code snippets.",
+            category: "Lore & Character",
+            priority: "CRITICAL",
+            dueDate: "Today, 18:00",
+            starBounty: 250,
+            assignee: initialMembers[2],
+            checklist: [
+              { id: "c1", title: "Draft 5 organic chem MCAT question roasts", isChecked: true },
+              { id: "c2", title: "Pair Pleaser stiletto charts with Solana cashtags", isChecked: true },
+              { id: "c3", title: "Stage 3:00 AM Shift Change announcement", isChecked: false },
+            ],
+          },
+          {
+            id: "card-scf-2",
+            columnId: "col_progress",
+            title: "Leak 'Banned' Ivy League Cease-and-Desist Letter",
+            description: "Manufacture viral Twitter outrage using the Redacted Syllabus tool alleging doctoral gown violations.",
+            category: "Viral PR",
+            priority: "HIGH",
+            dueDate: "Tonight, 21:00",
+            starBounty: 200,
+            assignee: initialMembers[1],
+            checklist: [
+              { id: "c4", title: "Generate Harvard General Counsel C&D PDF", isChecked: true },
+              { id: "c5", title: "Distribute screenshot to 5 alpha telegram caller groups", isChecked: false },
+            ],
+          },
+          {
+            id: "card-scf-3",
+            columnId: "col_review",
+            title: "Verify Velvet Rope 100-Stars Cover Charge Gate",
+            description: "Ensure non-holders are charged 100 Stars or must hold 10,000 $SCF to enter the VIP Champagne Room.",
+            category: "Monetization",
+            priority: "CRITICAL",
+            dueDate: "Tomorrow, 03:00",
+            starBounty: 300,
+            assignee: initialMembers[0],
+            checklist: [
+              { id: "c6", title: "Test Telegram Stars pre-checkout clearance", isChecked: true },
+              { id: "c7", title: "Verify holographic VIP pass QR generation", isChecked: true },
+            ],
+          },
+          {
+            id: "card-scf-4",
+            columnId: "col_done",
+            title: "Deploy 3% Tuition Auto-Liquidation Contract",
+            description: "Solana Raydium bonding curve router auto-converting fees to stablecoins for textbook grants.",
+            category: "Smart Contract",
+            priority: "CRITICAL",
+            dueDate: "Completed",
+            starBounty: 500,
+            assignee: initialMembers[0],
+            checklist: [
+              { id: "c8", title: "4-Year liquidity lock verified", isChecked: true },
+              { id: "c9", title: "Deploy to Pump.fun bonding curve", isChecked: true },
+            ],
+          },
+          {
+            id: "card-scf-5",
+            columnId: "col_backlog",
+            title: "Sponsor NASCAR Stiletto Hood Wrap",
+            description: "Execute roadmap item 95: sponsor regional racecar with glowing stiletto and QR contract address.",
+            category: "Guerilla Marketing",
+            priority: "NORMAL",
+            dueDate: "Phase 4",
+            starBounty: 1000,
+            assignee: initialMembers[1],
+            checklist: [
+              { id: "c10", title: "Contact privateer racing teams in Florida", isChecked: false },
+            ],
+          },
         ],
       },
-      {
-        id: "card-102",
-        columnId: "col_progress",
-        title: "KOL Private Briefing & Token Allocation",
-        description: "Distribute early CA hashes and media kit to top 15 verified alpha caller group managers.",
-        category: "Distribution",
-        priority: "CRITICAL",
-        dueDate: "Tomorrow, 12:00",
-        starBounty: 250,
-        assignee: initialMembers[1], // Marcus
-        checklist: [
-          { id: "chk-4", title: "Draft custom 30% rev-share invite links", isChecked: true },
-          { id: "chk-5", title: "Confirm Telegram handle verification", isChecked: false },
-          { id: "chk-6", title: "Stage Raydium block-zero timing", isChecked: false },
+      engineering: {
+        title: "Product Engineering // Sprint Velocity",
+        cards: [
+          {
+            id: "card-eng-1",
+            columnId: "col_progress",
+            title: "Sub-Millisecond Supabase Realtime Sync",
+            description: "Connect WebSocket broadcast channel to sync card movements across mobile devices in < 50ms.",
+            category: "Backend",
+            priority: "HIGH",
+            dueDate: "Sprint Active",
+            starBounty: 300,
+            assignee: initialMembers[2],
+            checklist: [
+              { id: "e1", title: "Implement optimistic UI state mutations", isChecked: true },
+              { id: "e2", title: "Handle concurrent edit collisions", isChecked: false },
+            ],
+          },
         ],
       },
-      {
-        id: "card-103",
-        columnId: "col_review",
-        title: "AURA Vault Cryptographic Dead-Man Audit",
-        description: "Formally verify client-side AES-GCM-256 nonces and zero-knowledge succession logic.",
-        category: "Security",
-        priority: "CRITICAL",
-        dueDate: "In 2 Days",
-        starBounty: 500,
-        assignee: initialMembers[0], // Elena
-        checklist: [
-          { id: "chk-7", title: "Audit PBKDF2 salt derivation", isChecked: true },
-          { id: "chk-8", title: "Validate dead-man trigger thresholds", isChecked: true },
-        ],
-      },
-      {
-        id: "card-104",
-        columnId: "col_done",
-        title: "Apple Cloud Grey & Ceramic Visual System",
-        description: "Re-architect styling palette from dark neon into Apple unibody ceramic silver (#F5F5F7) and glass hairlines.",
-        category: "Design",
-        priority: "NORMAL",
-        dueDate: "Completed",
-        starBounty: 100,
-        assignee: initialMembers[2],
-        checklist: [
-          { id: "chk-9", title: "Define 0.5px hairline tokens", isChecked: true },
-          { id: "chk-10", title: "Implement dual-sensory audio synthesis", isChecked: true },
-        ],
-      },
-      {
-        id: "card-105",
-        columnId: "col_backlog",
-        title: "Sub-Millisecond SSE Event Streaming",
-        description: "Connect Supabase Realtime WebSocket engine to update card position instantly across all connected teammates.",
-        category: "Backend",
-        priority: "NORMAL",
-        dueDate: "Next Sprint",
-        starBounty: 200,
-        assignee: initialMembers[1],
-        checklist: [
-          { id: "chk-11", title: "Provision Redis pub/sub channel", isChecked: false },
-          { id: "chk-12", title: "Stress test 50 concurrent team drags", isChecked: false },
-        ],
-      },
-    ];
+    };
 
-    if (action === "create_card" && newCard) {
-      const created = {
-        id: "card-" + Math.random().toString(36).substring(2, 7),
-        columnId: newCard.columnId || "col_backlog",
-        title: newCard.title || "Untitled Directive",
-        description: newCard.description || "",
-        category: newCard.category || "General",
-        priority: newCard.priority || "NORMAL",
-        dueDate: newCard.dueDate || "Flexible",
-        starBounty: Number(newCard.starBounty) || 0,
-        assignee: initialMembers[0],
-        checklist: [
-          { id: "chk-" + Math.random().toString(36).substring(2, 6), title: "Initial discovery & scope", isChecked: false },
-        ],
-      };
+    // Handle Onboarding Lore Task Generation
+    if (action === "generate_onboarding_tasks") {
+      const obj = objective || "Launch memecoin with $5-10M market cap in 24 hours";
+      const lore = brandLore || "Stripper College Fund / Destiny Dev";
+      const selectedChannels = channels || ["X/Twitter", "Telegram", "Pump.fun"];
+
+      const generatedCards = [
+        {
+          id: "task-gen-1",
+          columnId: "col_progress",
+          title: `Deploy ${lore} Core Narrative Ammunition`,
+          description: `Execute objective: "${obj}". Stage initial viral hooks across ${selectedChannels.join(", ")}.`,
+          category: "Campaign Objective",
+          priority: "CRITICAL",
+          dueDate: "Launch T-24h",
+          starBounty: 250,
+          assignee: initialMembers[0],
+          checklist: [
+            { id: "g1", title: "Codify 10 high-friction narrative hooks", isChecked: true },
+            { id: "g2", title: "Pre-seed 5 burner amplifier handles", isChecked: false },
+            { id: "g3", title: "Lock initial liquidity for 4-year duration", isChecked: false },
+          ],
+        },
+        {
+          id: "task-gen-2",
+          columnId: "col_backlog",
+          title: `Activate Channel Blitz: ${selectedChannels.slice(0, 2).join(" & ")}`,
+          description: `Coordinate simultaneous raid at 3:00 AM EST shift change across chosen distribution channels.`,
+          category: "Distribution",
+          priority: "HIGH",
+          dueDate: "Launch T-12h",
+          starBounty: 200,
+          assignee: initialMembers[1],
+          checklist: [
+            { id: "g4", title: "Sync post schedule with ElizaOS autonomous agents", isChecked: false },
+            { id: "g5", title: "Push custom 30% rev-share links to 10 group managers", isChecked: false },
+          ],
+        },
+        {
+          id: "task-gen-3",
+          columnId: "col_backlog",
+          title: `Audit Star Tollbooth & VIP Conversion`,
+          description: `Verify Star checkout flows and receipt logging for all in-app microtransactions.`,
+          category: "Monetization",
+          priority: "NORMAL",
+          dueDate: "Launch T-6h",
+          starBounty: 150,
+          assignee: initialMembers[2],
+          checklist: [
+            { id: "g6", title: "Confirm pre_checkout_query auto-approvals in < 2s", isChecked: false },
+            { id: "g7", title: "Test Telegram invoice deep links", isChecked: false },
+          ],
+        },
+      ];
 
       return NextResponse.json({
         ok: true,
         success: true,
-        card: created,
-        message: "Directive codified on ATLAS board.",
+        cards: generatedCards,
+        message: "Onboarding directives generated from lore bible.",
       });
     }
 
     if (action === "create_invite_link") {
-      const role = inviteRole || "MEMBER";
+      const role = body.inviteRole || "MEMBER";
       const inviteUrl = `https://t.me/saipion_bot?startapp=invite_BRD_ALPHA_${role}`;
       return NextResponse.json({
         ok: true,
@@ -166,6 +233,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Default: return board data for selected template
+    const selectedTemplate = TEMPLATES[template] || TEMPLATES.scf_launch;
+
     return NextResponse.json({
       ok: true,
       workspace: {
@@ -175,13 +245,14 @@ export async function POST(req: NextRequest) {
       },
       board: {
         id: "BRD-ALPHA-CORE",
-        title: "Sprint 2026 // D-Day Launchpad",
+        title: selectedTemplate.title,
         description: "Tactical execution board for token launch, marketing blitz, and app integrations.",
         roleCurrentUser: "OWNER",
+        template,
       },
       members: initialMembers,
       columns: initialColumns,
-      cards: initialCards,
+      cards: selectedTemplate.cards,
     });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });

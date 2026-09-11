@@ -34,6 +34,11 @@ import {
   Package,
   Kanban,
   Trello,
+  GraduationCap,
+  QrCode,
+  Coins,
+  Scale,
+  Bot,
 } from "lucide-react";
 import { sensory } from "@/lib/sensory";
 
@@ -41,13 +46,70 @@ export default function EcosystemDashboard() {
   const BOT_HANDLE = "saipion_bot";
   const APP_URL = "https://elegant-chandrasekhar.vercel.app";
   const SHARE_TEXT = encodeURIComponent(
-    "⚡ Just accessed the Saipion Syndicate TMA Tollbooth Engine on Telegram! Explore 23 live cash-flow apps:"
+    "⚡ Just accessed the Saipion Syndicate TMA Tollbooth Engine on Telegram! Explore 28 live cash-flow apps:"
   );
   const SHARE_URL = `https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${SHARE_TEXT}`;
 
-  const [activeFilter, setActiveFilter] = useState<"ALL" | "TRELLO" | "APPLE" | "INFRA" | "AMBUSH" | "WEB3" | "VIRAL">("ALL");
+  const [activeFilter, setActiveFilter] = useState<"ALL" | "SCF" | "TRELLO" | "APPLE" | "INFRA" | "AMBUSH" | "WEB3" | "VIRAL">("ALL");
 
   const apps = [
+    // Flagship Meme Ecosystem: Stripper College Fund ($SCF)
+    {
+      id: "APP-24",
+      name: "Stripper College Fund ($SCF)",
+      path: "/scf-terminal",
+      category: "SCF",
+      badge: "TUITION DESK",
+      tollbooth: "50-500 Stars Tipping",
+      icon: GraduationCap,
+      color: "text-pink-400 bg-pink-950/80 border-pink-700 shadow-sm",
+      desc: "Decentralized Academic Endowment terminal with live ticking tuition counter, shift change clock, and Star micro-grants.",
+    },
+    {
+      id: "APP-28",
+      name: "ElizaOS Agent Swarm",
+      path: "/eliza-agents",
+      category: "SCF",
+      badge: "AUTONOMOUS AI",
+      tollbooth: "OpenRouter & Heuristic Swarm",
+      icon: Bot,
+      color: "text-pink-300 bg-pink-950/80 border-pink-600 shadow-sm",
+      desc: "24/7 autonomous agents (Destiny, Big Mike Bouncer, Simp Sweeper) running on X & Telegram to pump liquidity.",
+    },
+    {
+      id: "APP-25",
+      name: "The Velvet Rope VIP Gate",
+      path: "/velvet-rope",
+      category: "SCF",
+      badge: "VIP CREDENTIAL",
+      tollbooth: "100 Stars ($2.00)",
+      icon: QrCode,
+      color: "text-amber-400 bg-amber-950/80 border-amber-700",
+      desc: "Bouncer security check requiring 10,000 $SCF balance or 100 Stars cover charge for private Champagne Room pass.",
+    },
+    {
+      id: "APP-26",
+      name: "Make It Rain: Pleaser Tap",
+      path: "/pleaser-tap",
+      category: "SCF",
+      badge: "TAP-TO-EARN",
+      tollbooth: "50-100 Star Boosts",
+      icon: Coins,
+      color: "text-pink-300 bg-purple-950/80 border-pink-700",
+      desc: "Hyper-addictive 8-inch Pleaser tap clicker with flying singles, heel upgrades, and Champagne Room multipliers.",
+    },
+    {
+      id: "APP-27",
+      name: "The Redacted Syllabus",
+      path: "/redacted-syllabus",
+      category: "SCF",
+      badge: "C&D GENERATOR",
+      tollbooth: "Viral Twitter Ammunition",
+      icon: Scale,
+      color: "text-rose-400 bg-rose-950/80 border-rose-700",
+      desc: "Generates official Ivy League Cease & Desist letters alleging doctoral regalia violations to ignite Twitter raids.",
+    },
+
     // Flagship: ATLAS OS (Apple Ceramic White Trello TMA)
     {
       id: "APP-23",
@@ -334,7 +396,7 @@ export default function EcosystemDashboard() {
           <div className="flex items-center gap-1.5 bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
             <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
-              23/23 ONLINE
+              28/28 ONLINE
             </span>
           </div>
         </div>
@@ -344,7 +406,7 @@ export default function EcosystemDashboard() {
             The Saipion Syndicate
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            23-App Telegram Mini App Cash-Flow &amp; Asymmetric Work OS
+            28-App Telegram Mini App Cash-Flow &amp; Asymmetric Work OS
           </p>
         </div>
 
@@ -389,7 +451,8 @@ export default function EcosystemDashboard() {
       {/* Category Filter Chips */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none font-mono text-xs">
         {[
-          { key: "ALL", label: "All 23 Plays" },
+          { key: "ALL", label: "All 28 Plays" },
+          { key: "SCF", label: "👠 $SCF Lore (5)" },
           { key: "TRELLO", label: "Trello TMA (2)" },
           { key: "APPLE", label: "Apple Minimal (5)" },
           { key: "INFRA", label: "Infrastructure (3)" },

@@ -86,6 +86,18 @@ export async function POST(req: NextRequest) {
         } else if (startParam.startsWith("invite_") || startParam.includes("atlas")) {
           targetApp = "atlas-board";
           buttonText = "Open ATLAS Board";
+        } else if (startParam === "scf" || startParam === "scf_terminal") {
+          targetApp = "scf-terminal";
+          buttonText = "Open $SCF Tuition Desk";
+        } else if (startParam === "velvet_rope" || startParam === "vip") {
+          targetApp = "velvet-rope";
+          buttonText = "Enter Velvet Rope VIP Gate";
+        } else if (startParam === "pleaser_tap" || startParam === "tap") {
+          targetApp = "pleaser-tap";
+          buttonText = "Play Pleaser Tap-to-Earn";
+        } else if (startParam === "eliza" || startParam === "agents") {
+          targetApp = "eliza-agents";
+          buttonText = "Open ElizaOS Agent Swarm";
         } else if (startParam === "auth" || startParam === "app-auth") {
           targetApp = "app-auth";
           buttonText = "Launch Identity Node";
@@ -107,11 +119,21 @@ export async function POST(req: NextRequest) {
               ],
               [
                 {
-                  text: "📋 ATLAS Board (App 23)",
+                  text: "👠 $SCF Tuition Desk (App 24)",
+                  web_app: { url: `${appUrl}/scf-terminal` },
+                },
+                {
+                  text: "🤖 ElizaOS Swarm (App 28)",
+                  web_app: { url: `${appUrl}/eliza-agents` },
+                },
+              ],
+              [
+                {
+                  text: "📋 ATLAS Trello Board (App 23)",
                   web_app: { url: `${appUrl}/atlas-board` },
                 },
                 {
-                  text: "🌐 All 23 Apps Matrix",
+                  text: "🌐 All 28 Apps Matrix",
                   web_app: { url: `${appUrl}` },
                 },
               ],
@@ -121,8 +143,8 @@ export async function POST(req: NextRequest) {
                   web_app: { url: `${appUrl}/star-buster` },
                 },
                 {
-                  text: "🛡️ App Auth (App 1)",
-                  web_app: { url: `${appUrl}/app-auth` },
+                  text: "🛡️ Velvet Rope VIP (App 25)",
+                  web_app: { url: `${appUrl}/velvet-rope` },
                 },
               ],
             ],

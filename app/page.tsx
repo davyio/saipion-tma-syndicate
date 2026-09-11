@@ -39,6 +39,7 @@ import {
   Coins,
   Scale,
   Bot,
+  Radar,
 } from "lucide-react";
 import { sensory } from "@/lib/sensory";
 
@@ -227,6 +228,17 @@ export default function EcosystemDashboard() {
       color: "text-fuchsia-400 bg-fuchsia-950/60 border-fuchsia-800",
       desc: "Rewarded video ad monetization with 1-Star microtransaction VIP skip.",
     },
+    {
+      id: "APP-29",
+      name: "Handle Radar (Layer 1 OSINT)",
+      path: "/handle-radar",
+      category: "INFRA",
+      badge: "RECON ENGINE",
+      tollbooth: "25-Star Pro Audit",
+      icon: Radar,
+      color: "text-cyan-400 bg-cyan-950/60 border-cyan-800",
+      desc: "Instant multi-platform social handle availability scanner, permutation generator, and CSV export.",
+    },
 
     // Phase 2: AI Ambush
     {
@@ -396,7 +408,7 @@ export default function EcosystemDashboard() {
           <div className="flex items-center gap-1.5 bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
             <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
-              28/28 ONLINE
+              29/29 ONLINE
             </span>
           </div>
         </div>
@@ -406,7 +418,7 @@ export default function EcosystemDashboard() {
             The Saipion Syndicate
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            28-App Telegram Mini App Cash-Flow &amp; Asymmetric Work OS
+            29-App Telegram Mini App Cash-Flow &amp; Asymmetric Work OS
           </p>
         </div>
 
@@ -451,11 +463,11 @@ export default function EcosystemDashboard() {
       {/* Category Filter Chips */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none font-mono text-xs">
         {[
-          { key: "ALL", label: "All 28 Plays" },
+          { key: "ALL", label: "All 29 Plays" },
           { key: "SCF", label: "👠 $SCF Lore (5)" },
           { key: "TRELLO", label: "Trello TMA (2)" },
           { key: "APPLE", label: "Apple Minimal (5)" },
-          { key: "INFRA", label: "Infrastructure (3)" },
+          { key: "INFRA", label: "Infrastructure (4)" },
           { key: "AMBUSH", label: "AI Ambush (4)" },
           { key: "WEB3", label: "Web3 Scalers (3)" },
           { key: "VIRAL", label: "Viral Arbitrage (6)" },
